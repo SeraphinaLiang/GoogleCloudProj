@@ -1,13 +1,19 @@
 package be.kuleuven.distributedsystems.cloud;
 
 import be.kuleuven.distributedsystems.cloud.entities.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ServerErrorException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -17,14 +23,15 @@ public class Model {
     WebClient.Builder webClientBuilder;
 
     static final String KEY = "wCIoTqec6vGJijW2meeqSokanZuqOL";
-
+    static final String RELIABLE_COMPANY_URL = "https://reliabletheatrecompany.com/";
+    static final String UNRELIABLE_COMPANY_URL = "https://unreliabletheatrecompany.com/";
     static final Map<String, ArrayList<Booking>> bookinng = new HashMap<>() ;
 
     public List<Show> getShows() {
         // TODO: return all shows
-
+        ArrayList<Show> shows = new ArrayList<>();
         var showsReliable = webClientBuilder
-                .baseUrl("https://reliabletheatrecompany.com/")
+                .baseUrl(RELIABLE_COMPANY_URL)
                 .build()
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -34,12 +41,12 @@ public class Model {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<CollectionModel<Show>>() {
                 })
+                .retry()
                 .block()
                 .getContent();
-
 
         var showsUnreliable = webClientBuilder
-                .baseUrl("https://unreliabletheatrecompany.com/")
+                .baseUrl(UNRELIABLE_COMPANY_URL)
                 .build()
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -49,15 +56,15 @@ public class Model {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<CollectionModel<Show>>() {
                 })
+                .retry()
                 .block()
                 .getContent();
-
-        ArrayList<Show> shows = new ArrayList<>();
-        shows.addAll(showsReliable);
         shows.addAll(showsUnreliable);
-
+        shows.addAll(showsReliable);
         return shows;
     }
+
+
 
     public Show getShow(String company, UUID showId) {
         // TODO: return the given show
@@ -79,6 +86,7 @@ public class Model {
                             .build())
                     .retrieve()
                     .bodyToMono(Show.class)
+                    .retry()
                     .block();
 
         } else {
@@ -90,10 +98,10 @@ public class Model {
                             .pathSegment("shows")
                             .pathSegment(showId.toString())
                             .queryParam("key", KEY)
-                            //  .queryParam("showId", showId)
                             .build())
                     .retrieve()
                     .bodyToMono(Show.class)
+                    .retry()
                     .block();
         }
 
@@ -108,7 +116,7 @@ public class Model {
 
         if (company.contains("unreliabletheatrecompany")) {
             dates= webClientBuilder
-                    .baseUrl("https://unreliabletheatrecompany.com/")
+                    .baseUrl(UNRELIABLE_COMPANY_URL)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -120,12 +128,13 @@ public class Model {
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<CollectionModel<LocalDateTime>>() {
                     })
+                    .retry()
                     .block()
                     .getContent();
 
         } else {
             dates = webClientBuilder
-                    .baseUrl("https://reliabletheatrecompany.com/")
+                    .baseUrl(RELIABLE_COMPANY_URL)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -153,7 +162,7 @@ public class Model {
 
         if (company.contains("unreliabletheatrecompany")) {
             seats= webClientBuilder
-                    .baseUrl("https://unreliabletheatrecompany.com/")
+                    .baseUrl(UNRELIABLE_COMPANY_URL)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -167,12 +176,13 @@ public class Model {
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<CollectionModel<Seat>>() {
                     })
+                    .retry()
                     .block()
                     .getContent();
 
         } else {
             seats = webClientBuilder
-                    .baseUrl("https://reliabletheatrecompany.com/")
+                    .baseUrl(RELIABLE_COMPANY_URL)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -203,7 +213,7 @@ public class Model {
         if (company.contains("unreliabletheatrecompany")) {
 
             seat = webClientBuilder
-                    .baseUrl("https://unreliabletheatrecompany.com/")
+                    .baseUrl(UNRELIABLE_COMPANY_URL)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -215,11 +225,12 @@ public class Model {
                             .build())
                     .retrieve()
                     .bodyToMono(Seat.class)
+                    .retry()
                     .block();
 
         } else {
             seat = webClientBuilder
-                    .baseUrl("https://reliabletheatrecompany.com/")
+                    .baseUrl(RELIABLE_COMPANY_URL)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -246,7 +257,7 @@ public class Model {
         if (company.contains("unreliabletheatrecompany")) {
 
             ticket = webClientBuilder
-                    .baseUrl("https://unreliabletheatrecompany.com/")
+                    .baseUrl(UNRELIABLE_COMPANY_URL)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -259,11 +270,12 @@ public class Model {
                             .build())
                     .retrieve()
                     .bodyToMono(Ticket.class)
+                    .retry()
                     .block();
 
         } else {
             ticket = webClientBuilder
-                    .baseUrl("https://reliabletheatrecompany.com/")
+                    .baseUrl(RELIABLE_COMPANY_URL)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -276,6 +288,7 @@ public class Model {
                             .build())
                     .retrieve()
                     .bodyToMono(Ticket.class)
+                    .retry()
                     .block();
         }
 
@@ -318,14 +331,70 @@ public class Model {
         return bestCustomers;
     }
 
+
+
     public void confirmQuotes(List<Quote> quotes, String customer) {
         // TODO: reserve all seats for the given quotes
         if (quotes.isEmpty()) return;
         List<Ticket> tickets = new ArrayList<>();
         for (Quote quote:quotes
              ) {
-            tickets.add(new Ticket(quote.getCompany(), quote.getShowId(), quote.getSeatId(), UUID.randomUUID(), customer));
+            String baseUrl = "https://reliabletheatrecompany.com/";
+            if (quote.getCompany().equals("unreliabletheatrecompany.com")) baseUrl = "https://unreliabletheatrecompany.com/";
+            var res = webClientBuilder
+                    .baseUrl(baseUrl)
+                    .build()
+                    .put()
+                    .uri(uriBuilder -> uriBuilder
+                            .pathSegment("shows")
+                            .pathSegment(quote.getShowId().toString())
+                            .pathSegment("seats")
+                            .pathSegment(quote.getSeatId().toString())
+                            .pathSegment("ticket")
+                            .queryParam("key",KEY)
+                            .queryParam("customer", customer)
+                            .build())
+                    .retrieve()
+                    .onStatus(e -> e.is4xxClientError(), clientResponse -> {
+                        for (Ticket ticket:tickets
+                             ) {
+                            try{
+                                String baseUrl_ = "https://reliabletheatrecompany.com/";
+                                if (ticket.getCompany().equals("unreliabletheatrecompany.com")) baseUrl_ = "https://unreliabletheatrecompany.com/";
+                                var del = webClientBuilder
+                                        .baseUrl(baseUrl_)
+                                        .build()
+                                        .delete()
+                                        .uri(uriBuilder -> uriBuilder
+                                                .pathSegment("shows")
+                                                .pathSegment(ticket.getShowId().toString())
+                                                .pathSegment("seats")
+                                                .pathSegment(ticket.getSeatId().toString())
+                                                .pathSegment("ticket")
+                                                .pathSegment(ticket.getTicketId().toString())
+                                                .queryParam("key", KEY)
+                                                .build())
+                                        .retrieve()
+                                        .onStatus(e->e.is4xxClientError(), clientResponse1 -> {return Mono.error(new RuntimeException("404 client error"));})
+                                        .bodyToMono(String.class)
+                                        .retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2))
+                                                .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
+                                        .block();
+                            }catch (RuntimeException e){
+                                continue;
+                            }
+
+                        }
+                        return Mono.error(new Exception());
+                    })
+                    .bodyToMono(Ticket.class)
+                    .retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2))
+                        .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
+                    .block();
+            tickets.add(res);
         }
+
+
         Booking newBooking = new Booking(UUID.randomUUID(), LocalDateTime.now(), tickets, customer);
         if(bookinng.containsKey(customer))
             bookinng.get(customer).add(newBooking);

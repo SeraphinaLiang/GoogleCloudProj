@@ -3,13 +3,34 @@ package be.kuleuven.distributedsystems.cloud.controller;
 import be.kuleuven.distributedsystems.cloud.Model;
 import be.kuleuven.distributedsystems.cloud.entities.Quote;
 import be.kuleuven.distributedsystems.cloud.entities.Seat;
+import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutureCallback;
+import com.google.api.core.ApiFutures;
+import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.grpc.GrpcTransportChannel;
+import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.FixedTransportChannelProvider;
+import com.google.api.gax.rpc.TransportChannelProvider;
+import com.google.cloud.pubsub.v1.Publisher;
+import com.google.cloud.pubsub.v1.TopicAdminClient;
+import com.google.cloud.pubsub.v1.TopicAdminSettings;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.ByteString;
+import com.google.pubsub.v1.PubsubMessage;
+import com.google.pubsub.v1.TopicName;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import org.eclipse.jetty.util.security.CredentialProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
@@ -52,13 +73,50 @@ public class APIController {
     @PostMapping("/confirmCart")
     public ResponseEntity<Void> confirmCart(
             @CookieValue(value = "cart", required = false) String cartString) throws Exception {
+        System.out.println(cartString);
+        try {
+            Publisher publisher = PubsubManagement.getPublisher();
+            String message = cartString;
+            ByteString data = ByteString.copyFromUtf8(message);
+            PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).putAttributes("customer",AuthController.getUser().getEmail()).build();
+
+            ApiFuture<String> future = publisher.publish(pubsubMessage);
+
+            ApiFutures.addCallback(
+                    future,
+                    new ApiFutureCallback<String>() {
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            if (throwable instanceof ApiException) {
+                                ApiException apiException = ((ApiException) throwable);
+                                // details on the API exception
+                                System.out.println(apiException.getStatusCode().getCode());
+                                System.out.println(apiException.isRetryable());
+                            }
+                            System.out.println("Error publishing message : " + message);
+                        }
+                        @Override
+                        public void onSuccess(String messageId) {
+                            System.out.println("Published message ID: " + messageId);
+                        }},
+                    MoreExecutors.directExecutor());
+        } finally {
+            PubsubManagement.freePublisher();
+            PubsubManagement.freeChannel();
+        }
+        //this.model.confirmQuotes(new ArrayList<>(cart), AuthController.getUser().getEmail());
         List<Quote> cart = Cart.fromCookie(cartString);
-        this.model.confirmQuotes(new ArrayList<>(cart), AuthController.getUser().getEmail());
         cart.clear();
         ResponseCookie cookie = Cart.toCookie(cart);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
         headers.add(HttpHeaders.LOCATION, "/account");
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
+    }
+
+    @PostMapping("/subscription")
+    public ResponseEntity<Void> subscription(@RequestBody String body){
+        System.out.println(body);
+        return ResponseEntity.ok().build();
     }
 }

@@ -5,12 +5,19 @@ import be.kuleuven.distributedsystems.cloud.entities.Quote;
 import be.kuleuven.distributedsystems.cloud.entities.Seat;
 import be.kuleuven.distributedsystems.cloud.entities.Show;
 import be.kuleuven.distributedsystems.cloud.entities.Ticket;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.errorprone.annotations.Var;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.pubsub.v1.PubsubMessage;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import org.eclipse.jetty.util.ajax.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
@@ -149,7 +156,9 @@ public class ViewController {
     public ModelAndView viewManager(
             @CookieValue(value = "cart", required = false) String cartString) throws Exception {
         // TODO: limit this function to managers
-
+        if(AuthController.getUser()==null || !AuthController.getUser().isManager()){
+            return null;
+        }
         List<Quote> quotes = Cart.fromCookie(cartString);
         ModelAndView modelAndView = new ModelAndView("manager");
         modelAndView.addObject("cartLength",
@@ -175,5 +184,22 @@ public class ViewController {
         modelAndView.addObject("shows", shows);
         modelAndView.addObject("bestCustomers", this.model.getBestCustomers());
         return modelAndView;
+    }
+
+    @PostMapping("/subscription")
+    public ResponseEntity<Void> subscription(@RequestBody String body){
+        try{
+            JsonObject jsonObject = new Gson().fromJson(body, JsonObject.class);
+            JsonObject jsonObject_message = new Gson().fromJson(jsonObject.get("message"), JsonObject.class);
+            String decoded = new String(Base64.getDecoder().decode(jsonObject_message.get("data").toString().replaceAll("\"","")));
+            JsonObject  jsonObject_attributes = new Gson().fromJson(jsonObject_message.get("attributes"), JsonObject.class);
+            List<Quote> cart = Cart.fromCookie(decoded);
+            this.model.confirmQuotes(new ArrayList<>(cart), jsonObject_attributes.get("customer").toString().replaceAll("\"", ""));
+            //this.model.confirmQuotes(new ArrayList<>(cart), AuthController.getUser().getEmail());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok().build();
     }
 }
