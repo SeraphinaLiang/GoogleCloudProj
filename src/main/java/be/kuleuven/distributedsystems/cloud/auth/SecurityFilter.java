@@ -1,14 +1,9 @@
 package be.kuleuven.distributedsystems.cloud.auth;
 
 import be.kuleuven.distributedsystems.cloud.entities.User;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.JWT;
-import com.google.api.client.json.Json;
-import com.google.gson.JsonObject;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,11 +39,11 @@ public class SecurityFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+            User user = new User(email, role);
 
             // TODO: (level 1) decode Identity Token and assign correct email and role
             // TODO: (level 2) verify Identity Token
-            User user = new User(email, role);
+
 
             SecurityContext context = SecurityContextHolder.getContext();
             context.setAuthentication(new FirebaseAuthentication(user));
@@ -56,41 +51,6 @@ public class SecurityFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-//    @Override
-//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//        var session = WebUtils.getCookie(request, "session");
-//        User user;
-//        String role = "";
-//        String email = "";
-//
-//        if (session != null) {
-//            String token = session.getValue();
-//            try {
-//                DecodedJWT jwt = JWT.decode(token);
-//
-//                if (!jwt.getClaim("role").isNull()) {
-//                    role = jwt.getClaim("role").asString();
-//                }
-//                email = jwt.getClaim("email").asString();
-//
-//            } catch (JWTDecodeException exception) {
-//                exception.printStackTrace();
-//            }
-//
-//            // TODO: (level 1) decode Identity Token and assign correct email and role
-//            if ("manager".equals(role)) {
-//                user = new User(email, "manager");
-//            } else {
-//                user = new User(email, "customer");
-//            }
-//
-//            // TODO: (level 2) verify Identity Token
-//
-//            SecurityContext context = SecurityContextHolder.getContext();
-//            context.setAuthentication(new FirebaseAuthentication(user));
-//        }
-//        filterChain.doFilter(request, response);
-//    }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {

@@ -105,7 +105,6 @@ public class PubsubManagement implements ApplicationRunner{
                 PushConfig pushConfig = PushConfig.newBuilder().setPushEndpoint(pushEndpoint).build();
                 Subscription subscription =
                         subscriptionAdminClient.createSubscription(subscriptionName, topicName, pushConfig, 10);
-                System.out.println("Created push subscription: " + subscription.getName());
             }
         }catch (IOException e){
             e.printStackTrace();

@@ -73,7 +73,6 @@ public class APIController {
     @PostMapping("/confirmCart")
     public ResponseEntity<Void> confirmCart(
             @CookieValue(value = "cart", required = false) String cartString) throws Exception {
-        System.out.println(cartString);
         try {
             Publisher publisher = PubsubManagement.getPublisher();
             String message = cartString;
@@ -112,11 +111,5 @@ public class APIController {
         headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
         headers.add(HttpHeaders.LOCATION, "/account");
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
-    }
-
-    @PostMapping("/subscription")
-    public ResponseEntity<Void> subscription(@RequestBody String body){
-        System.out.println(body);
-        return ResponseEntity.ok().build();
     }
 }
