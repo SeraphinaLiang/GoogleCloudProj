@@ -3,6 +3,7 @@ package be.kuleuven.distributedsystems.cloud.controller;
 import be.kuleuven.distributedsystems.cloud.Model;
 import be.kuleuven.distributedsystems.cloud.entities.Quote;
 import be.kuleuven.distributedsystems.cloud.entities.Seat;
+import com.google.api.HttpBody;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
@@ -21,6 +22,7 @@ import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.TopicName;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.security.CredentialProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -73,11 +75,13 @@ public class APIController {
     @PostMapping("/confirmCart")
     public ResponseEntity<Void> confirmCart(
             @CookieValue(value = "cart", required = false) String cartString) throws Exception {
+
+            System.out.println(cartString);
         try {
             Publisher publisher = PubsubManagement.getPublisher();
             String message = cartString;
             ByteString data = ByteString.copyFromUtf8(message);
-            PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).putAttributes("customer",AuthController.getUser().getEmail()).build();
+            PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).putAttributes("customer", AuthController.getUser().getEmail()).build();
 
             ApiFuture<String> future = publisher.publish(pubsubMessage);
 

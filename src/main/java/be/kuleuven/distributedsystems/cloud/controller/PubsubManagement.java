@@ -90,7 +90,9 @@ public class PubsubManagement implements ApplicationRunner{
                     TopicAdminClient.create(TopicAdminSettings.newBuilder()
                             .setTransportChannelProvider(channelProvider)
                             .setCredentialsProvider(credentialsProvider).build());
-            if(topicClient.getTopic(topicName) == null){
+            try {
+                topicClient.getTopic(topicName);
+            }catch (RuntimeException e){
                 topicClient.createTopic(topicName);
             }
 
@@ -101,7 +103,10 @@ public class PubsubManagement implements ApplicationRunner{
                             .build()
             );
             ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subsriptionId);
-            if(subscriptionAdminClient.getSubscription(subscriptionName) == null){
+            try {
+                subscriptionAdminClient.getSubscription(subscriptionName);
+            }
+            catch (RuntimeException e){
                 PushConfig pushConfig = PushConfig.newBuilder().setPushEndpoint(pushEndpoint).build();
                 Subscription subscription =
                         subscriptionAdminClient.createSubscription(subscriptionName, topicName, pushConfig, 10);
