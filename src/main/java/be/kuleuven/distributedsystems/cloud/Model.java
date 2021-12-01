@@ -2,6 +2,8 @@ package be.kuleuven.distributedsystems.cloud;
 
 import be.kuleuven.distributedsystems.cloud.entities.*;
 
+import be.kuleuven.distributedsystems.cloud.firestore.CloudFirestore;
+import com.google.cloud.firestore.Firestore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.CollectionModel;
@@ -23,7 +25,8 @@ public class Model {
     static final String KEY = "wCIoTqec6vGJijW2meeqSokanZuqOL";
     static final String RELIABLE_COMPANY_URL = "https://reliabletheatrecompany.com/";
     static final String UNRELIABLE_COMPANY_URL = "https://unreliabletheatrecompany.com/";
-    static final Map<String, ArrayList<Booking>> bookinng = new HashMap<>() ;
+    //static final Map<String, ArrayList<Booking>> bookinng = new HashMap<>() ;
+    CloudFirestore db = new CloudFirestore();
 
     public List<Show> getShows() {
         // TODO: return all shows
@@ -295,25 +298,33 @@ public class Model {
 
     public List<Booking> getBookings(String customer) {
         // TODO: return all bookings from the customer
-        return bookinng.getOrDefault(customer, new ArrayList<>());
+       // return bookinng.getOrDefault(customer, new ArrayList<>());
+        return db.getBookingsByCustomerFromDB(customer);
     }
 
     public List<Booking> getAllBookings() {
         // TODO: return all bookings
-
-        return new ArrayList<>(){
+        return db.getAllBookingsFromDB();
+        /*return new ArrayList<>(){
             {
                 Iterator<ArrayList<Booking>> iterator = bookinng.values().iterator();
                 while(iterator.hasNext()) addAll(iterator.next());
             }
-        };
+        };*/
     }
 
     public Set<String> getBestCustomers() {
         // TODO: return the best customer (highest number of tickets, return all of them if multiple customers have an equal amount)
+
+        Map<String, ArrayList<Booking>> bookingMap = new HashMap<>();
+        List<Booking> bookingList = db.getAllBookingsFromDB();
+        for (Booking b:bookingList){
+            bookingMap.put(b.getCustomer(),db.getBookingsByCustomerFromDB(b.getCustomer()));
+        }
+
         Set<String> bestCustomers = new HashSet<>();
         int highest = 0;
-        for(Map.Entry<String,ArrayList<Booking>> entry:bookinng.entrySet()){
+        for(Map.Entry<String,ArrayList<Booking>> entry:bookingMap.entrySet()){
             int cnt = 0;
             for (Booking booking:entry.getValue()
                  ) {
@@ -394,9 +405,12 @@ public class Model {
 
 
         Booking newBooking = new Booking(UUID.randomUUID(), LocalDateTime.now(), tickets, customer);
-        if(bookinng.containsKey(customer))
+        db.addBookingToDB(newBooking);
+
+
+        /*if(bookinng.containsKey(customer))
             bookinng.get(customer).add(newBooking);
         else
-            bookinng.put(customer, new ArrayList<Booking>(Arrays.asList(newBooking)));
+            bookinng.put(customer, new ArrayList<Booking>(Arrays.asList(newBooking)));*/
     }
 }

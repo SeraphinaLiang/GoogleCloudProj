@@ -60,7 +60,7 @@ public class PubsubManagement implements ApplicationRunner{
     }
 
     public static void init(){
-        channel = ManagedChannelBuilder.forTarget("localhost:8085").usePlaintext().build();
+        channel = ManagedChannelBuilder.forTarget("localhost:8083").usePlaintext().build();
         channelProvider = FixedTransportChannelProvider.create(GrpcTransportChannel.create(channel));
         credentialsProvider = NoCredentialsProvider.create();
     }

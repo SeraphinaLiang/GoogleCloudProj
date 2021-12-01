@@ -14,7 +14,7 @@
            Please set the following parameter for the filename
            for the final zip to `cloud-[1 or 2].[firstname].[lastname]`.
         ************************************************************* -->
-        <zip.filename>cloud-ADDLEVEL.ADDFIRSTNAME.ADDLASTNAME</zip.filename>
+        <zip.filename>cloud-1.YINQI.LIANG</zip.filename>
 
         <java.version>11</java.version>
         <maven.compiler.target>11</maven.compiler.target>
@@ -43,6 +43,10 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-firestore</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

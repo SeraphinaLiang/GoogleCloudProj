@@ -2,7 +2,7 @@
   "emulators": {
     "ui": {
       "enabled": true,
-      "port": 8081
+      "port": 8086
     },
     "auth": {
       "port": 8082
@@ -11,7 +11,7 @@
       "port": 8083
     },
     "firestore": {
-      "port": 8084
+      "port": 8085
     }
   }
 }
