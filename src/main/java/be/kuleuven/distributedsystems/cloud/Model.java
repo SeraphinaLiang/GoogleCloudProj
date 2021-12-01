@@ -350,6 +350,7 @@ public class Model {
              ) {
             String baseUrl = "https://reliabletheatrecompany.com/";
             if (quote.getCompany().equals("unreliabletheatrecompany.com")) baseUrl = "https://unreliabletheatrecompany.com/";
+            boolean succ = true;
             var res = webClientBuilder
                     .baseUrl(baseUrl)
                     .build()
@@ -401,9 +402,12 @@ public class Model {
                         .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
                     .block();
             tickets.add(res);
+            System.out.println(res.getSeatId());
         }
-
-
+        for (Ticket ticket:tickets
+             ) {
+            System.out.println(ticket.getSeatId());
+        }
         Booking newBooking = new Booking(UUID.randomUUID(), LocalDateTime.now(), tickets, customer);
         db.addBookingToDB(newBooking);
 
