@@ -6,7 +6,9 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 
+import java.awt.print.Book;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -83,19 +85,13 @@ public class CloudFirestore {
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
             for (QueryDocumentSnapshot document : documents) {
 
-                Map<String, Object> map = document.getData();
+                // System.out.println(document.getData().toString());  //JSON object string
 
-                for (Map.Entry<String, Object> stringObjectEntry : map.entrySet()) {
-
-                    System.out.println(document.getData()+"\n----------------");  //JSON object string
-                    System.out.println(stringObjectEntry+"\n-----------------");  // object string
-
-
-
-
-                    //Booking b = document.toObject(Booking.class);
-                   // Booking b = (Booking) stringObjectEntry.getValue();
-                  //  bookings.add(b);
+                String json = document.getData().toString();
+                if (!json.isEmpty()){
+                    Gson gson = new Gson();
+                    Booking b = gson.fromJson(json, Booking.class);
+                    bookings.add(b);
                 }
             }
 
@@ -119,10 +115,10 @@ public class CloudFirestore {
 
                     //System.out.println(stringObjectEntry.getKey());
                     //System.out.println(stringObjectEntry.getValue());
-                    System.out.println(document.toString());
+                    // System.out.println(document.toString());
                     //Booking b = document.toObject(Booking.class);
-                   // Booking b = (Booking) stringObjectEntry.getValue();
-                   // bookings.add(b);
+                    // Booking b = (Booking) stringObjectEntry.getValue();
+                    // bookings.add(b);
                 }
 
             }
