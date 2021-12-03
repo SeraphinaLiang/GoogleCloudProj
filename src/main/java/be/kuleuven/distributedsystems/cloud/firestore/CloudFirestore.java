@@ -9,7 +9,9 @@ import com.google.common.collect.Lists;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 
@@ -47,7 +49,7 @@ public class CloudFirestore {
      */
     public void addBookingToDB(Booking booking) {
         try {
-            ApiFuture<WriteResult> addResult = firestore.collection("bookings").document(booking.getId().toString()).set(booking);
+            ApiFuture<WriteResult> addResult = firestore.collection("bookings").document(booking.getId()).set(booking);
             if (!addResult.isDone()) {
 
             }
@@ -80,8 +82,21 @@ public class CloudFirestore {
             // future.get() blocks on response
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
             for (QueryDocumentSnapshot document : documents) {
-                Booking b = document.toObject(Booking.class);
-                bookings.add(b);
+
+                Map<String, Object> map = document.getData();
+
+                for (Map.Entry<String, Object> stringObjectEntry : map.entrySet()) {
+
+                    System.out.println(document.getData()+"\n----------------");  //JSON object string
+                    System.out.println(stringObjectEntry+"\n-----------------");  // object string
+
+
+
+
+                    //Booking b = document.toObject(Booking.class);
+                   // Booking b = (Booking) stringObjectEntry.getValue();
+                  //  bookings.add(b);
+                }
             }
 
         } catch (Exception e) {
@@ -97,8 +112,19 @@ public class CloudFirestore {
                     firestore.collection("bookings").whereEqualTo("customer", customer).get();
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
             for (DocumentSnapshot document : documents) {
-                Booking b = document.toObject(Booking.class);
-                bookings.add(b);
+
+                Map<String, Object> map = document.getData();
+                assert map != null;
+                for (Map.Entry<String, Object> stringObjectEntry : map.entrySet()) {
+
+                    //System.out.println(stringObjectEntry.getKey());
+                    //System.out.println(stringObjectEntry.getValue());
+                    System.out.println(document.toString());
+                    //Booking b = document.toObject(Booking.class);
+                   // Booking b = (Booking) stringObjectEntry.getValue();
+                   // bookings.add(b);
+                }
+
             }
         } catch (ExecutionException | InterruptedException e1) {
             e1.printStackTrace();

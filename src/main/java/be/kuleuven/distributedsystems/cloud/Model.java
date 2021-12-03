@@ -342,7 +342,7 @@ public class Model {
     public void confirmQuotes(List<Quote> quotes, String customer) {
         // TODO: reserve all seats for the given quotes
         if (quotes.isEmpty()) return;
-        List<Ticket> tickets = new ArrayList<>();
+        ArrayList<Ticket> tickets = new ArrayList<>();
         for (Quote quote : quotes
         ) {
             String baseUrl = "https://reliabletheatrecompany.com/";

@@ -1,7 +1,6 @@
 package be.kuleuven.distributedsystems.cloud.entities;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 public class Ticket implements Serializable {
     private String company;
