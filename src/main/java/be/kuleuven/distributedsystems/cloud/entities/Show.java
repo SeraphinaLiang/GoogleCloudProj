@@ -1,42 +1,22 @@
 package be.kuleuven.distributedsystems.cloud.entities;
 
-import java.util.UUID;
+import java.io.Serializable;
 
-public class Show {
+public class Show implements Serializable {
     private String company;
-    private UUID showId;
+    private String showId;
     private String name;
     private String location;
     private String image;
 
     public Show() {}
 
-    public Show(String company, UUID showId, String name, String location, String image) {
+    public Show(String company, String showId, String name, String location, String image) {
         this.company = company;
         this.showId = showId;
         this.name = name;
         this.location = location;
         this.image = image;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public UUID getShowId() {
-        return showId;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getLocation() {
-        return this.location;
-    }
-
-    public String getImage() {
-        return this.image;
     }
 
     @Override
@@ -52,5 +32,45 @@ public class Show {
     @Override
     public int hashCode() {
         return this.company.hashCode() * this.showId.hashCode();
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getShowId() {
+        return showId;
+    }
+
+    public void setShowId(String showId) {
+        this.showId = showId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

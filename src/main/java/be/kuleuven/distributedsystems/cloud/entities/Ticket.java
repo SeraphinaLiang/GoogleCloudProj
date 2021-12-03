@@ -1,43 +1,24 @@
 package be.kuleuven.distributedsystems.cloud.entities;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Ticket {
+public class Ticket implements Serializable {
     private String company;
-    private UUID showId;
-    private UUID seatId;
-    private UUID ticketId;
+    private String showId;
+    private String seatId;
+    private String ticketId;
     private String customer;
 
     public Ticket() {
     }
 
-    public Ticket(String company, UUID showId, UUID seatId, UUID ticketId, String customer) {
+    public Ticket(String company, String showId, String seatId, String ticketId, String customer) {
         this.company = company;
         this.showId = showId;
         this.seatId = seatId;
         this.ticketId = ticketId;
         this.customer = customer;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public UUID getShowId() {
-        return showId;
-    }
-
-    public UUID getSeatId() {
-        return this.seatId;
-    }
-
-    public UUID getTicketId() {
-        return this.ticketId;
-    }
-
-    public String getCustomer() {
-        return this.customer;
     }
 
     @Override
@@ -55,5 +36,45 @@ public class Ticket {
     @Override
     public int hashCode() {
         return this.company.hashCode() * this.showId.hashCode() * this.seatId.hashCode() * this.ticketId.hashCode();
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getShowId() {
+        return showId;
+    }
+
+    public void setShowId(String showId) {
+        this.showId = showId;
+    }
+
+    public String getSeatId() {
+        return seatId;
+    }
+
+    public void setSeatId(String seatId) {
+        this.seatId = seatId;
+    }
+
+    public String getTicketId() {
+        return ticketId;
+    }
+
+    public void setTicketId(String ticketId) {
+        this.ticketId = ticketId;
+    }
+
+    public String getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(String customer) {
+        this.customer = customer;
     }
 }

@@ -5,7 +5,9 @@ import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
+import com.google.common.collect.Lists;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -13,37 +15,39 @@ import java.util.concurrent.ExecutionException;
 
 public class CloudFirestore {
 
-    private Firestore db;
+    private Firestore firestore = null;
 
     public CloudFirestore() {
+
+        if (firestore == null) {
+            initialDB("true-bit-333719", "true-bit-333719-2edd7ecb552b.json");
+        }
     }
 
-    public void initialDB(String projectId) {
+    private void initialDB(String projectId, String jsonPath) {
         try {
-            // [START firestore_setup_client_create]
-            // Option 1: Initialize a Firestore client with a specific `projectId` and
-            //           authorization credential.
-            // [START fs_initialize_project_id]
-            // [START firestore_setup_client_create_with_project_id]
+            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonPath))
+                    .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
+
             FirestoreOptions firestoreOptions =
                     FirestoreOptions.getDefaultInstance().toBuilder()
                             .setProjectId(projectId)
-                            .setCredentials(GoogleCredentials.getApplicationDefault())
+                            .setCredentials(credentials)
                             .build();
             Firestore db = firestoreOptions.getService();
-            // [END fs_initialize_project_id]
-            // [END firestore_setup_client_create_with_project_id]
-            // [END firestore_setup_client_create]
-            this.db = db;
+            this.firestore = db;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    /**
+     * to store all bookings in Cloud Firestore
+     */
     public void addBookingToDB(Booking booking) {
         try {
-            ApiFuture<WriteResult> addResult = db.collection("bookings").document(booking.getId().toString()).set(booking);
+            ApiFuture<WriteResult> addResult = firestore.collection("bookings").document(booking.getId().toString()).set(booking);
             if (!addResult.isDone()) {
 
             }
@@ -57,7 +61,7 @@ public class CloudFirestore {
     public void deleteBookingFromDB(String bookingID) {
         try {
             // asynchronously delete a document
-            ApiFuture<WriteResult> deleteResult = db.collection("bookings").document(bookingID).delete();
+            ApiFuture<WriteResult> deleteResult = firestore.collection("bookings").document(bookingID).delete();
             if (!deleteResult.isDone()) {
 
             }
@@ -72,7 +76,7 @@ public class CloudFirestore {
         List<Booking> bookings = new ArrayList<>();
         try {
             //asynchronously retrieve all documents
-            ApiFuture<QuerySnapshot> future = db.collection("bookings").get();
+            ApiFuture<QuerySnapshot> future = firestore.collection("bookings").get();
             // future.get() blocks on response
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
             for (QueryDocumentSnapshot document : documents) {
@@ -90,7 +94,7 @@ public class CloudFirestore {
         ArrayList<Booking> bookings = new ArrayList<>();
         try {
             ApiFuture<QuerySnapshot> future =
-                    db.collection("bookings").whereEqualTo("customer", customer).get();
+                    firestore.collection("bookings").whereEqualTo("customer", customer).get();
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
             for (DocumentSnapshot document : documents) {
                 Booking b = document.toObject(Booking.class);
@@ -103,5 +107,10 @@ public class CloudFirestore {
 
     }
 
+    /**
+     * local company persist all shows, seats and tickets in Cloud Firestore.
+     */
+    public void initialLocalCompany() {
 
+    }
 }

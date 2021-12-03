@@ -6,39 +6,15 @@ import java.util.UUID;
 public class Quote implements Serializable {
 
     private String company;
-    private UUID showId;
-    private UUID seatId;
+    private String showId;
+    private String seatId;
 
     public Quote() {
     }
 
-    public Quote(String company, UUID showId, UUID seatId) {
+    public Quote(String company, String showId, String seatId) {
         this.company = company;
         this.showId = showId;
-        this.seatId = seatId;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
-    }
-
-    public UUID getShowId() {
-        return showId;
-    }
-
-    public void setShowId(UUID showId) {
-        this.showId = showId;
-    }
-
-    public UUID getSeatId() {
-        return this.seatId;
-    }
-
-    public void setSeatId(UUID seatId) {
         this.seatId = seatId;
     }
 
@@ -56,5 +32,29 @@ public class Quote implements Serializable {
     @Override
     public int hashCode() {
         return this.company.hashCode() * this.showId.hashCode() * this.seatId.hashCode();
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getShowId() {
+        return showId;
+    }
+
+    public void setShowId(String showId) {
+        this.showId = showId;
+    }
+
+    public String getSeatId() {
+        return seatId;
+    }
+
+    public void setSeatId(String seatId) {
+        this.seatId = seatId;
     }
 }

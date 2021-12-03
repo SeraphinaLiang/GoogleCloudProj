@@ -6,7 +6,7 @@ if (location.hostname === "localhost") {
     }
 } else {
     // TODO: (level 2) replace with your own configuration
-    firebaseConfig = {}
+
 }
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();

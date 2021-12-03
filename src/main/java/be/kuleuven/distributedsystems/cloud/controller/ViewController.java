@@ -84,7 +84,7 @@ public class ViewController {
                 this.model.getAvailableSeats(company, showId, time)
                         .stream()
                         .filter(seat -> quotes.stream()
-                                .noneMatch(quote -> quote.equals(new Quote(seat.getCompany(), seat.getShowId(), seat.getSeatId()))))
+                                .noneMatch(quote -> quote.equals(new Quote(seat.getCompany(), seat.getShowId().toString(), seat.getSeatId().toString()))))
                         .sorted(Comparator.comparing(Seat::getType)
                                 .thenComparing(seat -> seat.getName().substring(0, 1))
                                 .thenComparing(seat -> Integer.parseInt(seat.getName().substring(1))))
@@ -101,14 +101,14 @@ public class ViewController {
                 Integer.toString(quotes.size()));
         modelAndView.addObject("manager", AuthController.getUser().isManager());
 
-        var shows = new HashMap<UUID, Show>();
-        var seats = new HashMap<UUID, Seat>();
+        var shows = new HashMap<String, Show>();
+        var seats = new HashMap<String, Seat>();
         for (var q : quotes) {
             if (!shows.containsKey(q.getShowId())) {
-                shows.put(q.getShowId(), this.model.getShow(q.getCompany(), q.getShowId()));
+                shows.put(q.getShowId(), this.model.getShow(q.getCompany(), UUID.fromString(q.getShowId())));
             }
             if (!seats.containsKey(q.getSeatId())) {
-                seats.put(q.getSeatId(), this.model.getSeat(q.getCompany(), q.getShowId(), q.getSeatId()));
+                seats.put(q.getSeatId(), this.model.getSeat(q.getCompany(), UUID.fromString(q.getShowId()), UUID.fromString(q.getSeatId())));
             }
         }
 
@@ -128,15 +128,15 @@ public class ViewController {
         modelAndView.addObject("manager", AuthController.getUser().isManager());
         var bookings = this.model.getBookings(AuthController.getUser().getEmail());
 
-        var shows = new HashMap<UUID, Show>();
-        var seats = new HashMap<UUID, Seat>();
+        var shows = new HashMap<String, Show>();
+        var seats = new HashMap<String, Seat>();
         for (var b : bookings) {
             for (var t : b.getTickets()) {
                 if (!shows.containsKey(t.getShowId())) {
-                    shows.put(t.getShowId(), this.model.getShow(t.getCompany(), t.getShowId()));
+                    shows.put(t.getShowId(), this.model.getShow(t.getCompany(), UUID.fromString(t.getShowId())));
                 }
                 if (!seats.containsKey(t.getSeatId())) {
-                    seats.put(t.getSeatId(), this.model.getSeat(t.getCompany(), t.getShowId(), t.getSeatId()));
+                    seats.put(t.getSeatId(), this.model.getSeat(t.getCompany(), UUID.fromString(t.getShowId()), UUID.fromString(t.getSeatId())));
                 }
             }
         }
@@ -151,7 +151,7 @@ public class ViewController {
     public ModelAndView viewManager(
             @CookieValue(value = "cart", required = false) String cartString) throws Exception {
         // TODO: limit this function to managers
-        if(AuthController.getUser()==null || !AuthController.getUser().isManager()){
+        if (AuthController.getUser() == null || !AuthController.getUser().isManager()) {
             return null;
         }
         List<Quote> quotes = Cart.fromCookie(cartString);
@@ -161,15 +161,15 @@ public class ViewController {
         modelAndView.addObject("manager", AuthController.getUser().isManager());
         var bookings = this.model.getAllBookings();
 
-        var shows = new HashMap<UUID, Show>();
-        var seats = new HashMap<UUID, Seat>();
+        var shows = new HashMap<String, Show>();
+        var seats = new HashMap<String, Seat>();
         for (var b : bookings) {
             for (var t : b.getTickets()) {
                 if (!shows.containsKey(t.getShowId())) {
-                    shows.put(t.getShowId(), this.model.getShow(t.getCompany(), t.getShowId()));
+                    shows.put(t.getShowId(), this.model.getShow(t.getCompany(), UUID.fromString(t.getShowId())));
                 }
                 if (!seats.containsKey(t.getSeatId())) {
-                    seats.put(t.getSeatId(), this.model.getSeat(t.getCompany(), t.getShowId(), t.getSeatId()));
+                    seats.put(t.getSeatId(), this.model.getSeat(t.getCompany(), UUID.fromString(t.getShowId()), UUID.fromString(t.getSeatId())));
                 }
             }
         }
@@ -182,17 +182,16 @@ public class ViewController {
     }
 
     @PostMapping("/subscription")
-    public ResponseEntity<Void> subscription(@RequestBody String body){
-        try{
+    public ResponseEntity<Void> subscription(@RequestBody String body) {
+        try {
             JsonObject jsonObject = new Gson().fromJson(body, JsonObject.class);
             JsonObject jsonObject_message = new Gson().fromJson(jsonObject.get("message"), JsonObject.class);
-            String decoded = new String(Base64.getDecoder().decode(jsonObject_message.get("data").toString().replaceAll("\"","")));
-            JsonObject  jsonObject_attributes = new Gson().fromJson(jsonObject_message.get("attributes"), JsonObject.class);
+            String decoded = new String(Base64.getDecoder().decode(jsonObject_message.get("data").toString().replaceAll("\"", "")));
+            JsonObject jsonObject_attributes = new Gson().fromJson(jsonObject_message.get("attributes"), JsonObject.class);
             List<Quote> cart = Cart.fromCookie(decoded);
             this.model.confirmQuotes(new ArrayList<>(cart), jsonObject_attributes.get("customer").toString().replaceAll("\"", ""));
             //this.model.confirmQuotes(new ArrayList<>(cart), AuthController.getUser().getEmail());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return ResponseEntity.ok().build();

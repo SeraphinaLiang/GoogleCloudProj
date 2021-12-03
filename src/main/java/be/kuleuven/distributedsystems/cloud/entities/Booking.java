@@ -1,11 +1,12 @@
 package be.kuleuven.distributedsystems.cloud.entities;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public class Booking {
-    private UUID id;
+public class Booking implements Serializable {
+    private String id;
     private LocalDateTime time;
     private List<Ticket> tickets;
     private String customer;
@@ -14,28 +15,42 @@ public class Booking {
 
     }
 
-    public Booking(UUID id, LocalDateTime time, List<Ticket> tickets, String customer) {
+    public Booking(String id, LocalDateTime time, List<Ticket> tickets, String customer) {
         this.id = id;
         this.time = time;
         this.tickets = tickets;
         this.customer = customer;
     }
 
-    public UUID getId() {
-        return this.id;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public LocalDateTime getTime() {
-        return this.time;
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
     }
 
     public List<Ticket> getTickets() {
-        return this.tickets;
+        return tickets;
+    }
+
+    public void setTickets(List<Ticket> tickets) {
+        this.tickets = tickets;
     }
 
     public String getCustomer() {
-        return this.customer;
+        return customer;
     }
 
-
+    public void setCustomer(String customer) {
+        this.customer = customer;
+    }
 }

@@ -65,8 +65,6 @@ public class Model {
         return shows;
     }
 
-
-
     public Show getShow(String company, UUID showId) {
         // TODO: return the given show
 
@@ -116,7 +114,7 @@ public class Model {
         Collection<LocalDateTime> dates;
 
         if (company.contains("unreliabletheatrecompany")) {
-            dates= webClientBuilder
+            dates = webClientBuilder
                     .baseUrl(UNRELIABLE_COMPANY_URL)
                     .build()
                     .get()
@@ -162,7 +160,7 @@ public class Model {
         Collection<Seat> seats;
 
         if (company.contains("unreliabletheatrecompany")) {
-            seats= webClientBuilder
+            seats = webClientBuilder
                     .baseUrl(UNRELIABLE_COMPANY_URL)
                     .build()
                     .get()
@@ -171,8 +169,8 @@ public class Model {
                             .pathSegment(showId.toString())
                             .pathSegment("seats")
                             .queryParam("key", KEY)
-                            .queryParam("time",time)
-                            .queryParam("available","true")
+                            .queryParam("time", time)
+                            .queryParam("available", "true")
                             .build())
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<CollectionModel<Seat>>() {
@@ -191,8 +189,8 @@ public class Model {
                             .pathSegment(showId.toString())
                             .pathSegment("seats")
                             .queryParam("key", KEY)
-                            .queryParam("time",time)
-                            .queryParam("available","true")
+                            .queryParam("time", time)
+                            .queryParam("available", "true")
                             .build())
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<CollectionModel<Seat>>() {
@@ -298,7 +296,7 @@ public class Model {
 
     public List<Booking> getBookings(String customer) {
         // TODO: return all bookings from the customer
-       // return bookinng.getOrDefault(customer, new ArrayList<>());
+        // return bookinng.getOrDefault(customer, new ArrayList<>());
         return db.getBookingsByCustomerFromDB(customer);
     }
 
@@ -318,38 +316,38 @@ public class Model {
 
         Map<String, ArrayList<Booking>> bookingMap = new HashMap<>();
         List<Booking> bookingList = db.getAllBookingsFromDB();
-        for (Booking b:bookingList){
-            bookingMap.put(b.getCustomer(),db.getBookingsByCustomerFromDB(b.getCustomer()));
+        for (Booking b : bookingList) {
+            if (!bookingMap.containsKey(b.getCustomer())) {
+                bookingMap.put(b.getCustomer(), db.getBookingsByCustomerFromDB(b.getCustomer()));
+            }
         }
 
         Set<String> bestCustomers = new HashSet<>();
         int highest = 0;
-        for(Map.Entry<String,ArrayList<Booking>> entry:bookingMap.entrySet()){
+        for (Map.Entry<String, ArrayList<Booking>> entry : bookingMap.entrySet()) {
             int cnt = 0;
-            for (Booking booking:entry.getValue()
-                 ) {
+            for (Booking booking : entry.getValue()
+            ) {
                 cnt += booking.getTickets().size();
             }
-            if(cnt > highest){
+            if (cnt > highest) {
                 bestCustomers.clear();
                 bestCustomers.add(entry.getKey());
                 highest = cnt;
-            }
-            else if(cnt == highest) bestCustomers.add(entry.getKey());
+            } else if (cnt == highest) bestCustomers.add(entry.getKey());
         }
         return bestCustomers;
     }
-
-
 
     public void confirmQuotes(List<Quote> quotes, String customer) {
         // TODO: reserve all seats for the given quotes
         if (quotes.isEmpty()) return;
         List<Ticket> tickets = new ArrayList<>();
-        for (Quote quote:quotes
-             ) {
+        for (Quote quote : quotes
+        ) {
             String baseUrl = "https://reliabletheatrecompany.com/";
-            if (quote.getCompany().equals("unreliabletheatrecompany.com")) baseUrl = "https://unreliabletheatrecompany.com/";
+            if (quote.getCompany().equals("unreliabletheatrecompany.com"))
+                baseUrl = "https://unreliabletheatrecompany.com/";
             boolean succ = true;
             var res = webClientBuilder
                     .baseUrl(baseUrl)
@@ -361,16 +359,17 @@ public class Model {
                             .pathSegment("seats")
                             .pathSegment(quote.getSeatId().toString())
                             .pathSegment("ticket")
-                            .queryParam("key",KEY)
+                            .queryParam("key", KEY)
                             .queryParam("customer", customer)
                             .build())
                     .retrieve()
                     .onStatus(e -> e.is4xxClientError(), clientResponse -> {
-                        for (Ticket ticket:tickets
-                             ) {
-                            try{
+                        for (Ticket ticket : tickets
+                        ) {
+                            try {
                                 String baseUrl_ = "https://reliabletheatrecompany.com/";
-                                if (ticket.getCompany().equals("unreliabletheatrecompany.com")) baseUrl_ = "https://unreliabletheatrecompany.com/";
+                                if (ticket.getCompany().equals("unreliabletheatrecompany.com"))
+                                    baseUrl_ = "https://unreliabletheatrecompany.com/";
                                 var del = webClientBuilder
                                         .baseUrl(baseUrl_)
                                         .build()
@@ -385,12 +384,14 @@ public class Model {
                                                 .queryParam("key", KEY)
                                                 .build())
                                         .retrieve()
-                                        .onStatus(e->e.is4xxClientError(), clientResponse1 -> {return Mono.error(new RuntimeException("404 client error"));})
+                                        .onStatus(e -> e.is4xxClientError(), clientResponse1 -> {
+                                            return Mono.error(new RuntimeException("404 client error"));
+                                        })
                                         .bodyToMono(String.class)
                                         .retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2))
                                                 .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
                                         .block();
-                            }catch (RuntimeException e){
+                            } catch (RuntimeException e) {
                                 continue;
                             }
 
@@ -399,16 +400,17 @@ public class Model {
                     })
                     .bodyToMono(Ticket.class)
                     .retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2))
-                        .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
+                            .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
                     .block();
             tickets.add(res);
+            assert res != null;
             System.out.println(res.getSeatId());
         }
-        for (Ticket ticket:tickets
-             ) {
+        for (Ticket ticket : tickets
+        ) {
             System.out.println(ticket.getSeatId());
         }
-        Booking newBooking = new Booking(UUID.randomUUID(), LocalDateTime.now(), tickets, customer);
+        Booking newBooking = new Booking(UUID.randomUUID().toString(), LocalDateTime.now(), tickets, customer);
         db.addBookingToDB(newBooking);
 
 
