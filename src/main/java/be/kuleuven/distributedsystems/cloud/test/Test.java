@@ -14,6 +14,6 @@ public class Test {
         System.out.println(b.getCustomer());*/
 
         EmailSending e = new EmailSending();
-        e.sendEmail();
+        e.sendEmail("yinqi.liang@student.kuleuven.be","title","this is content");
     }
 }

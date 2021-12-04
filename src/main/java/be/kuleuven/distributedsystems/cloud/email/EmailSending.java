@@ -11,14 +11,20 @@ import com.sendgrid.helpers.mail.objects.Email;
 import java.io.IOException;
 
 public class EmailSending {
-    public void sendEmail()  {
+    /**
+     * @param userEmail send to who
+     * @param subject   the topic of email
+     * @param text      the content of email
+     *                  API Key : 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
+     */
+    public boolean sendEmail(String userEmail, String subject, String text) {
+
+        boolean success = false;
         Email from = new Email("yinqi.liang@student.kuleuven.be");
-        String subject = "Sending with Twilio SendGrid is Fun";
-        Email to = new Email("yinqi.liang@student.kuleuven.be");
-        Content content = new Content("text/plain", "and easy to do anywhere, even with Java");
+        Email to = new Email(userEmail);
+        Content content = new Content("text/plain", text);
         Mail mail = new Mail(from, subject, to, content);
 
-        //API Key : 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
         SendGrid sg = new SendGrid("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");
         Request request = new Request();
         try {
@@ -26,12 +32,15 @@ public class EmailSending {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             Response response = sg.api(request);
+
             System.out.println(response.getStatusCode());
-            System.out.println(response.getBody());
-            System.out.println(response.getHeaders());
+            if (response.getStatusCode() == 202) {
+                success = true;
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        return success;
     }
 
 }
