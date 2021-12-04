@@ -1,33 +1,35 @@
 package be.kuleuven.distributedsystems.cloud.entities;
 
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+
 public class Booking implements Serializable {
-    private String id;
+    private UUID id;
     private LocalDateTime time;
     private ArrayList<Ticket> tickets;
     private String customer;
 
     public Booking(){
-
     }
 
-    public Booking(String id, LocalDateTime time, ArrayList<Ticket> tickets, String customer) {
+    public Booking(UUID id, LocalDateTime time, ArrayList<Ticket> tickets, String customer) {
         this.id = id;
         this.time = time;
         this.tickets = tickets;
         this.customer = customer;
     }
 
-    public String getId() {
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

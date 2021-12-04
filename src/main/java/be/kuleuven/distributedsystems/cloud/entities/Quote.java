@@ -6,13 +6,13 @@ import java.util.UUID;
 public class Quote implements Serializable {
 
     private String company;
-    private String showId;
-    private String seatId;
+    private UUID showId;
+    private UUID seatId;
 
     public Quote() {
     }
 
-    public Quote(String company, String showId, String seatId) {
+    public Quote(String company, UUID showId, UUID seatId) {
         this.company = company;
         this.showId = showId;
         this.seatId = seatId;
@@ -42,19 +42,19 @@ public class Quote implements Serializable {
         this.company = company;
     }
 
-    public String getShowId() {
+    public UUID getShowId() {
         return showId;
     }
 
-    public void setShowId(String showId) {
+    public void setShowId(UUID showId) {
         this.showId = showId;
     }
 
-    public String getSeatId() {
+    public UUID getSeatId() {
         return seatId;
     }
 
-    public void setSeatId(String seatId) {
+    public void setSeatId(UUID seatId) {
         this.seatId = seatId;
     }
 }

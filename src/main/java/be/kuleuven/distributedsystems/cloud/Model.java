@@ -25,7 +25,6 @@ public class Model {
     static final String KEY = "wCIoTqec6vGJijW2meeqSokanZuqOL";
     static final String RELIABLE_COMPANY_URL = "https://reliabletheatrecompany.com/";
     static final String UNRELIABLE_COMPANY_URL = "https://unreliabletheatrecompany.com/";
-    //static final Map<String, ArrayList<Booking>> bookinng = new HashMap<>() ;
     CloudFirestore db = new CloudFirestore();
 
     public List<Show> getShows() {
@@ -60,8 +59,11 @@ public class Model {
                 .retry()
                 .block()
                 .getContent();
+
+        List<Show> showsLocal = db.getLocalShowsInPlatform();
         shows.addAll(showsUnreliable);
         shows.addAll(showsReliable);
+        shows.addAll(showsLocal);
         return shows;
     }
 
@@ -403,14 +405,8 @@ public class Model {
                             .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
                     .block();
             tickets.add(res);
-            assert res != null;
-            System.out.println(res.getSeatId());
         }
-        for (Ticket ticket : tickets
-        ) {
-            System.out.println(ticket.getSeatId());
-        }
-        Booking newBooking = new Booking(UUID.randomUUID().toString(), LocalDateTime.now(), tickets, customer);
+        Booking newBooking = new Booking(UUID.randomUUID(), LocalDateTime.now(), tickets, customer);
         db.addBookingToDB(newBooking);
 
 

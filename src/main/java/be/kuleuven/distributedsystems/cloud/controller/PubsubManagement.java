@@ -39,7 +39,7 @@ public class PubsubManagement implements ApplicationRunner{
     private static TransportChannelProvider channelProvider;
     private static CredentialsProvider credentialsProvider;
     private static Publisher publisher = null;
-    private static final String projectId = "projectid";
+    private static final String projectId = "demo-distributed-systems-kul";
     private static final String topicId = "topicid";
     private static final String subsriptionId = "subscriptionid";
     private static final String pushEndpoint = "http://localhost:8080/subscription";

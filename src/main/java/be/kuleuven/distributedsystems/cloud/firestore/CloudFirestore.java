@@ -1,23 +1,36 @@
 package be.kuleuven.distributedsystems.cloud.firestore;
 
 import be.kuleuven.distributedsystems.cloud.entities.Booking;
+import be.kuleuven.distributedsystems.cloud.entities.Ticket;
+import be.kuleuven.distributedsystems.cloud.localCompany.Seat;
+import be.kuleuven.distributedsystems.cloud.localCompany.Show;
+import ch.qos.logback.core.util.FileUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.common.collect.Lists;
+import com.google.errorprone.annotations.Var;
+import net.minidev.json.parser.JSONParser;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-
-public class CloudFirestore {
+@Component
+public class CloudFirestore implements ApplicationRunner {
 
     private Firestore firestore = null;
+
+    private static final String TIMEPATTERN = "yyyy-MM-dd HH:mm:ss";
 
     public CloudFirestore() {
 
@@ -49,7 +62,23 @@ public class CloudFirestore {
      */
     public void addBookingToDB(Booking booking) {
         try {
-            ApiFuture<WriteResult> addResult = firestore.collection("bookings").document(booking.getId()).set(booking);
+            Map<String, Object> data = new HashMap<>();
+            data.put("customer", booking.getCustomer());
+            data.put("id", booking.getId().toString());
+            data.put("tickets", new ArrayList<Map<String, Object>>(){{
+                for (Ticket t:booking.getTickets()){
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("company", t.getCompany());
+                    map.put("customer", t.getCustomer());
+                    map.put("seatID", t.getSeatId().toString());
+                    map.put("showID", t.getShowId().toString());
+                    map.put("ticketID", t.getTicketId().toString());
+                    add(map);
+                }
+            }});
+            data.put("time", booking.getTime().format(DateTimeFormatter.ofPattern(TIMEPATTERN)));
+            ApiFuture<WriteResult> addResult = firestore.collection("bookings").document(booking.getId().toString()).set(data);
+
             if (!addResult.isDone()) {
 
             }
@@ -112,18 +141,26 @@ public class CloudFirestore {
                     firestore.collection("bookings").whereEqualTo("customer", customer).get();
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
             for (DocumentSnapshot document : documents) {
-
                 Map<String, Object> map = document.getData();
-                assert map != null;
-                for (Map.Entry<String, Object> stringObjectEntry : map.entrySet()) {
-
-                    //System.out.println(stringObjectEntry.getKey());
-                    //System.out.println(stringObjectEntry.getValue());
-                    System.out.println(document.toString());
-                    //Booking b = document.toObject(Booking.class);
-                   // Booking b = (Booking) stringObjectEntry.getValue();
-                   // bookings.add(b);
-                }
+                Booking b = new Booking(UUID.fromString(map.get("id").toString()), LocalDateTime.parse(map.get("time").toString(), DateTimeFormatter.ofPattern(TIMEPATTERN)),
+                        new ArrayList<>(){{
+                            for (Object o:(ArrayList)map.get("tickets")){
+                                Map<String, String> m = (Map)o;
+                                add(new Ticket(m.get("company"), UUID.fromString(m.get("showID")), UUID.fromString(m.get("seatID")), UUID.fromString(m.get("ticketID")), m.get("customer")));
+                            }
+                        }}, map.get("customer").toString());
+                bookings.add(b);
+//                Map<String, Object> map = document.getData();
+//                assert map != null;
+//                for (Map.Entry<String, Object> stringObjectEntry : map.entrySet()) {
+//
+//                    //System.out.println(stringObjectEntry.getKey());
+//                    //System.out.println(stringObjectEntry.getValue());
+//                    //System.out.println(document.toString());
+//                    //Booking b = document.toObject(Booking.class);
+//                   // Booking b = (Booking) stringObjectEntry.getValue();
+//                   // bookings.add(b);
+//                }
 
             }
         } catch (ExecutionException | InterruptedException e1) {
@@ -133,10 +170,50 @@ public class CloudFirestore {
 
     }
 
+    public List<be.kuleuven.distributedsystems.cloud.entities.Show> getLocalShowsInPlatform(){
+        List<be.kuleuven.distributedsystems.cloud.entities.Show> shows = new ArrayList<>();
+        try {
+            ApiFuture<QuerySnapshot> future =
+                    firestore.collection("shows").get();
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+            for (DocumentSnapshot document:documents){
+                Show show = document.toObject(Show.class);
+                shows.add(new be.kuleuven.distributedsystems.cloud.entities.Show(show.getCompany(), UUID.fromString(show.getShowID()), show.getName(),
+                        show.getLocation(), show.getImage()));
+            }
+        }catch (ExecutionException|InterruptedException e){
+            e.printStackTrace();
+        }
+
+        return shows;
+    }
+
     /**
      * local company persist all shows, seats and tickets in Cloud Firestore.
      */
-    public void initialLocalCompany() {
 
+    @Override
+    public void run(ApplicationArguments args) throws Exception{
+        CollectionReference collectionShows = firestore.collection("shows");
+        ApiFuture<QuerySnapshot> future =
+                collectionShows.get();
+        if (!future.get().isEmpty()) return;
+        else{
+            Map<String,Object> json =
+                    new ObjectMapper().readValue(new File("src/main/resources/data.json"), HashMap.class);
+            for (Object object:(ArrayList)json.get("shows")) {
+                Map<String, Object> showmap = (Map)object;
+                Map<String, Seat> seats = new HashMap<>();
+                for (Object o:(ArrayList)showmap.get("seats")) {
+                    Map<String, Object> seatData = (Map)o;
+                    UUID seat_uuid = UUID.randomUUID();
+                    seats.put(seat_uuid.toString(), new Seat(seat_uuid.toString(), (String)seatData.get("time"),
+                            (String)seatData.get("name"), true, (String)seatData.get("type"), ((Integer)seatData.get("price")).doubleValue()));
+                }
+                UUID show_uuid = UUID.randomUUID();
+                Show show = new Show(show_uuid.toString(), "localCompany", (String)showmap.get("name"), (String)showmap.get("location"), (String)showmap.get("image"), seats);
+                collectionShows.document(show_uuid.toString()).set(show);
+            }
+        }
     }
 }

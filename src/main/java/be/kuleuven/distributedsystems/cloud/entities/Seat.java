@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public class Seat implements Serializable {
     private String company;
-    private String showId;
-    private String seatId;
+    private UUID showId;
+    private UUID seatId;
     private LocalDateTime time;
     private String type;
     private String name;
@@ -16,7 +16,7 @@ public class Seat implements Serializable {
     public Seat() {
     }
 
-    public Seat(String company, String showId, String seatId, LocalDateTime time, String type, String name, double price) {
+    public Seat(String company, UUID showId, UUID seatId, LocalDateTime time, String type, String name, double price) {
         this.company = company;
         this.showId = showId;
         this.seatId = seatId;
@@ -50,19 +50,19 @@ public class Seat implements Serializable {
         this.company = company;
     }
 
-    public String getShowId() {
+    public UUID getShowId() {
         return showId;
     }
 
-    public void setShowId(String showId) {
+    public void setShowId(UUID showId) {
         this.showId = showId;
     }
 
-    public String getSeatId() {
+    public UUID getSeatId() {
         return seatId;
     }
 
-    public void setSeatId(String seatId) {
+    public void setSeatId(UUID seatId) {
         this.seatId = seatId;
     }
 

@@ -1,0 +1,105 @@
+[debug] [2021-12-04T19:07:34.685Z] ----------------------------------------------------------------------
+[debug] [2021-12-04T19:07:34.686Z] Command:       /usr/local/bin/firebase /Users/fuzzy/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/bin/firebase emulators:start --project demo-distributed-systems-kul
+[debug] [2021-12-04T19:07:34.686Z] CLI Version:   9.22.0
+[debug] [2021-12-04T19:07:34.687Z] Platform:      darwin
+[debug] [2021-12-04T19:07:34.687Z] Node Version:  v12.18.1
+[debug] [2021-12-04T19:07:34.687Z] Time:          Sat Dec 04 2021 20:07:34 GMT+0100 (Central European Standard Time)
+[debug] [2021-12-04T19:07:34.688Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2021-12-04T19:07:34.725Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-12-04T19:07:34.725Z] > authorizing via signed-in user (starkkyrie@gmail.com)
+[info] i  emulators: Starting emulators: auth, firestore, pubsub {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, firestore, pubsub"}}
+[info] i  emulators: Detected demo project ID "demo-distributed-systems-kul", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail. {"metadata":{"emulator":{"name":"hub"},"message":"Detected demo project ID \"demo-distributed-systems-kul\", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail."}}
+[warn] ⚠  emulators: It seems that you are running multiple instances of the emulator suite for project demo-distributed-systems-kul. This may result in unexpected behavior. 
+[debug] [2021-12-04T19:07:34.738Z] [hub] writing locator at /var/folders/s2/rj1hr_q57nn7k6q1l60d2jh80000gn/T/hub-demo-distributed-systems-kul.json
+[warn] ⚠  firestore: Did not find a Cloud Firestore rules file specified in a firebase.json config file. {"metadata":{"emulator":{"name":"firestore"},"message":"Did not find a Cloud Firestore rules file specified in a firebase.json config file."}}
+[warn] ⚠  firestore: The emulator will default to allowing all reads and writes. Learn more about this option: https://firebase.google.com/docs/emulator-suite/install_and_configure#security_rules_configuration. {"metadata":{"emulator":{"name":"firestore"},"message":"The emulator will default to allowing all reads and writes. Learn more about this option: https://firebase.google.com/docs/emulator-suite/install_and_configure#security_rules_configuration."}}
+[debug] [2021-12-04T19:07:34.782Z] Ignoring unsupported arg: projectId {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: projectId"}}
+[debug] [2021-12-04T19:07:34.783Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2021-12-04T19:07:34.783Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","/Users/fuzzy/.cache/firebase/emulators/cloud-firestore-emulator-v1.13.1.jar","--host","localhost","--port",8085],"optionalArgs":["port","webchannel_port","host","rules","functions_emulator","seed_from_export"],"joinArgs":false} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"/Users/fuzzy/.cache/firebase/emulators/cloud-firestore-emulator-v1.13.1.jar\",\"--host\",\"localhost\",\"--port\",8085],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"functions_emulator\",\"seed_from_export\"],\"joinArgs\":false}"}}
+[info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to \u001b[1mfirestore-debug.log\u001b[22m"}}
+[debug] [2021-12-04T19:07:35.758Z] Dec 04, 2021 8:07:35 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start
+INFO: Started WebSocket server on ws://localhost:56508
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:35 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start\nINFO: Started WebSocket server on ws://localhost:56508\n"}}
+[debug] [2021-12-04T19:07:35.778Z] API endpoint: http://localhost:8085 {"metadata":{"emulator":{"name":"firestore"},"message":"API endpoint: http://localhost:8085"}}
+[debug] [2021-12-04T19:07:35.779Z] 
+If you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:
+
+   export FIRESTORE_EMULATOR_HOST=localhost:8085
+
+Dev App Server is now running.
+
+ {"metadata":{"emulator":{"name":"firestore"},"message":"\nIf you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:\n\n   export FIRESTORE_EMULATOR_HOST=localhost:8085\n\nDev App Server is now running.\n\n"}}
+[debug] [2021-12-04T19:07:38.033Z] Ignoring unsupported arg: projectId {"metadata":{"emulator":{"name":"pubsub"},"message":"Ignoring unsupported arg: projectId"}}
+[debug] [2021-12-04T19:07:38.033Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"pubsub"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2021-12-04T19:07:38.033Z] Starting Pub/Sub Emulator with command {"binary":"/Users/fuzzy/.cache/firebase/emulators/pubsub-emulator-0.1.0/pubsub-emulator/bin/cloud-pubsub-emulator","args":["--host=localhost","--port=8083"],"optionalArgs":["port","host"],"joinArgs":true} {"metadata":{"emulator":{"name":"pubsub"},"message":"Starting Pub/Sub Emulator with command {\"binary\":\"/Users/fuzzy/.cache/firebase/emulators/pubsub-emulator-0.1.0/pubsub-emulator/bin/cloud-pubsub-emulator\",\"args\":[\"--host=localhost\",\"--port=8083\"],\"optionalArgs\":[\"port\",\"host\"],\"joinArgs\":true}"}}
+[info] i  pubsub: Pub/Sub Emulator logging to pubsub-debug.log {"metadata":{"emulator":{"name":"pubsub"},"message":"Pub/Sub Emulator logging to \u001b[1mpubsub-debug.log\u001b[22m"}}
+[debug] [2021-12-04T19:07:38.043Z] Dec 04, 2021 8:07:38 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:38 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected non-HTTP/2 connection.\n"}}
+[debug] [2021-12-04T19:07:38.078Z] Dec 04, 2021 8:07:38 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:38 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected non-HTTP/2 connection.\n"}}
+[debug] [2021-12-04T19:07:38.100Z] Dec 04, 2021 8:07:38 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:38 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected non-HTTP/2 connection.\n"}}
+[debug] [2021-12-04T19:07:38.116Z] Dec 04, 2021 8:07:38 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:38 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected non-HTTP/2 connection.\n"}}
+[debug] [2021-12-04T19:07:38.133Z] Dec 04, 2021 8:07:38 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketChannelHandler initChannel
+INFO: Connected to new websocket client
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:38 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketChannelHandler initChannel\nINFO: Connected to new websocket client\n"}}
+[debug] [2021-12-04T19:07:38.251Z] This is the Google Pub/Sub fake.
+Implementation may be incomplete or differ from the real system. {"metadata":{"emulator":{"name":"pubsub"},"message":"This is the Google Pub/Sub fake.\nImplementation may be incomplete or differ from the real system."}}
+[debug] [2021-12-04T19:07:38.251Z] 
+ {"metadata":{"emulator":{"name":"pubsub"},"message":"\n"}}
+[debug] [2021-12-04T19:07:38.294Z] 12月 04, 2021 8:07:38 下午 com.google.cloud.pubsub.testing.v1.Main main
+信息: IAM integration is disabled. IAM policy methods and ACL checks are not supported
+ {"metadata":{"emulator":{"name":"pubsub"},"message":"12月 04, 2021 8:07:38 下午 com.google.cloud.pubsub.testing.v1.Main main\n信息: IAM integration is disabled. IAM policy methods and ACL checks are not supported\n"}}
+[debug] [2021-12-04T19:07:38.671Z] 12月 04, 2021 8:07:38 下午 io.gapi.emulators.netty.NettyUtil applyJava7LongHostnameWorkaround
+信息: Unable to apply Java 7 long hostname workaround.
+ {"metadata":{"emulator":{"name":"pubsub"},"message":"12月 04, 2021 8:07:38 下午 io.gapi.emulators.netty.NettyUtil applyJava7LongHostnameWorkaround\n信息: Unable to apply Java 7 long hostname workaround.\n"}}
+[debug] [2021-12-04T19:07:38.744Z] 12月 04, 2021 8:07:38 下午 com.google.cloud.pubsub.testing.v1.Main main
+信息: Server started, listening on 8083
+ {"metadata":{"emulator":{"name":"pubsub"},"message":"12月 04, 2021 8:07:38 下午 com.google.cloud.pubsub.testing.v1.Main main\n信息: Server started, listening on 8083\n"}}
+[debug] [2021-12-04T19:07:38.814Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2021-12-04T19:07:38.814Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2021-12-04T19:07:38.814Z] Starting Emulator UI with command {"binary":"node","args":["/Users/fuzzy/.cache/firebase/emulators/ui-v1.6.4/server.bundle.js"],"optionalArgs":[],"joinArgs":false} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"/Users/fuzzy/.cache/firebase/emulators/ui-v1.6.4/server.bundle.js\"],\"optionalArgs\":[],\"joinArgs\":false}"}}
+[info] i  ui: Emulator UI logging to ui-debug.log {"metadata":{"emulator":{"name":"ui"},"message":"Emulator UI logging to \u001b[1mui-debug.log\u001b[22m"}}
+[debug] [2021-12-04T19:07:38.913Z] 12月 04, 2021 8:07:38 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+ {"metadata":{"emulator":{"name":"pubsub"},"message":"12月 04, 2021 8:07:38 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete\n信息: Adding handler(s) to newly registered Channel.\n"}}
+[debug] [2021-12-04T19:07:39.014Z] Web / API server started at localhost:8086
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at localhost:8086\n"}}
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://localhost:8086                │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────────┬────────────────┬─────────────────────────────────┐
+│ Emulator       │ Host:Port      │ View in Emulator UI             │
+├────────────────┼────────────────┼─────────────────────────────────┤
+│ Authentication │ localhost:8082 │ http://localhost:8086/auth      │
+├────────────────┼────────────────┼─────────────────────────────────┤
+│ Firestore      │ localhost:8085 │ http://localhost:8086/firestore │
+├────────────────┼────────────────┼─────────────────────────────────┤
+│ Pub/Sub        │ localhost:8083 │ n/a                             │
+└────────────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub running at localhost:4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2021-12-04T19:07:40.263Z] Dec 04, 2021 8:07:40 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:40 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected non-HTTP/2 connection.\n"}}
+[debug] [2021-12-04T19:07:40.273Z] Dec 04, 2021 8:07:40 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketChannelHandler channelClosed
+INFO: Websocket client disconnected
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:40 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketChannelHandler channelClosed\nINFO: Websocket client disconnected\n"}}
+[debug] [2021-12-04T19:07:40.283Z] Dec 04, 2021 8:07:40 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketChannelHandler initChannel
+INFO: Connected to new websocket client
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:40 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketChannelHandler initChannel\nINFO: Connected to new websocket client\n"}}
+[debug] [2021-12-04T19:07:42.290Z] Dec 04, 2021 8:07:42 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Dec 04, 2021 8:07:42 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected non-HTTP/2 connection.\n"}}

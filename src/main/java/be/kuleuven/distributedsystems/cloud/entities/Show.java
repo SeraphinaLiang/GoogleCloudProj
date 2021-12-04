@@ -1,17 +1,18 @@
 package be.kuleuven.distributedsystems.cloud.entities;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class Show implements Serializable {
     private String company;
-    private String showId;
+    private UUID showId;
     private String name;
     private String location;
     private String image;
 
     public Show() {}
 
-    public Show(String company, String showId, String name, String location, String image) {
+    public Show(String company, UUID showId, String name, String location, String image) {
         this.company = company;
         this.showId = showId;
         this.name = name;
@@ -42,11 +43,11 @@ public class Show implements Serializable {
         this.company = company;
     }
 
-    public String getShowId() {
+    public UUID getShowId() {
         return showId;
     }
 
-    public void setShowId(String showId) {
+    public void setShowId(UUID showId) {
         this.showId = showId;
     }
 
