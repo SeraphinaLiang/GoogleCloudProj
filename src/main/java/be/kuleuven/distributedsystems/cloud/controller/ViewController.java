@@ -79,7 +79,7 @@ public class ViewController {
         modelAndView.addObject("show",
                 this.model.getShow(company, showId));
         modelAndView.addObject("time",
-                time.format(DateTimeFormatter.ofPattern("d MMM uuuu  H:mm")));
+                time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
         modelAndView.addObject("seats",
                 this.model.getAvailableSeats(company, showId, time)
                         .stream()

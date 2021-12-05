@@ -90,7 +90,7 @@ public class Model {
                     .retry()
                     .block();
 
-        } else {
+        } else if(company.contains("reliabletheatrecompany")){
             show = webClientBuilder
                     .baseUrl("https://reliabletheatrecompany.com/")
                     .build()
@@ -104,6 +104,8 @@ public class Model {
                     .bodyToMono(Show.class)
                     .retry()
                     .block();
+        }else{
+            show = db.getShowbyId(showId);
         }
 
         return show;
@@ -133,7 +135,7 @@ public class Model {
                     .block()
                     .getContent();
 
-        } else {
+        } else if(company.contains("reliabletheatrecompany")){
             dates = webClientBuilder
                     .baseUrl(RELIABLE_COMPANY_URL)
                     .build()
@@ -150,6 +152,8 @@ public class Model {
                     .block()
                     .getContent();
 
+        } else{
+            dates = db.getLocalDateTimeByShowId(showId);
         }
 
         return new ArrayList<>(dates);
@@ -181,7 +185,7 @@ public class Model {
                     .block()
                     .getContent();
 
-        } else {
+        } else if(company.contains("reliabletheatrecompany")) {
             seats = webClientBuilder
                     .baseUrl(RELIABLE_COMPANY_URL)
                     .build()
@@ -200,6 +204,8 @@ public class Model {
                     .block()
                     .getContent();
 
+        } else{
+            seats = db.getAvailableSeats(showId, time);
         }
 
         return new ArrayList<>(seats);
@@ -229,7 +235,7 @@ public class Model {
                     .retry()
                     .block();
 
-        } else {
+        } else if(company.contains("reliabletheatrecompany")) {
             seat = webClientBuilder
                     .baseUrl(RELIABLE_COMPANY_URL)
                     .build()
@@ -244,6 +250,8 @@ public class Model {
                     .retrieve()
                     .bodyToMono(Seat.class)
                     .block();
+        } else{
+            seat = db.getSeatById(showId, seatId);
         }
 
         return seat;
@@ -274,7 +282,7 @@ public class Model {
                     .retry()
                     .block();
 
-        } else {
+        } else if(company.contains("reliabletheatrecompany")) {
             ticket = webClientBuilder
                     .baseUrl(RELIABLE_COMPANY_URL)
                     .build()
@@ -291,26 +299,19 @@ public class Model {
                     .bodyToMono(Ticket.class)
                     .retry()
                     .block();
+        }else{
+            ticket = db.getTicket(showId, seatId);
         }
 
         return ticket;
     }
 
     public List<Booking> getBookings(String customer) {
-        // TODO: return all bookings from the customer
-        // return bookinng.getOrDefault(customer, new ArrayList<>());
         return db.getBookingsByCustomerFromDB(customer);
     }
 
     public List<Booking> getAllBookings() {
-        // TODO: return all bookings
         return db.getAllBookingsFromDB();
-        /*return new ArrayList<>(){
-            {
-                Iterator<ArrayList<Booking>> iterator = bookinng.values().iterator();
-                while(iterator.hasNext()) addAll(iterator.next());
-            }
-        };*/
     }
 
     public Set<String> getBestCustomers() {
@@ -341,6 +342,45 @@ public class Model {
         return bestCustomers;
     }
 
+    public void rollback(List<Ticket> tickets){
+        for (Ticket ticket : tickets
+        ) {
+            try {
+                if(ticket.getCompany().equals("localCompany")){
+                    db.deleteTicket(ticket.getTicketId());
+                }
+                else{
+                    String baseUrl_ = "https://reliabletheatrecompany.com/";
+                    if (ticket.getCompany().equals("unreliabletheatrecompany.com"))
+                        baseUrl_ = "https://unreliabletheatrecompany.com/";
+                    var del = webClientBuilder
+                            .baseUrl(baseUrl_)
+                            .build()
+                            .delete()
+                            .uri(uriBuilder -> uriBuilder
+                                    .pathSegment("shows")
+                                    .pathSegment(ticket.getShowId().toString())
+                                    .pathSegment("seats")
+                                    .pathSegment(ticket.getSeatId().toString())
+                                    .pathSegment("ticket")
+                                    .pathSegment(ticket.getTicketId().toString())
+                                    .queryParam("key", KEY)
+                                    .build())
+                            .retrieve()
+                            .onStatus(e -> e.is4xxClientError(), clientResponse1 -> {
+                                return Mono.error(new RuntimeException("404 client error"));
+                            })
+                            .bodyToMono(String.class)
+                            .retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2))
+                                    .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
+                            .block();
+                }
+            } catch (Exception e) {
+                continue;
+            }
+        }
+    }
+
     public void confirmQuotes(List<Quote> quotes, String customer) {
         // TODO: reserve all seats for the given quotes
         if (quotes.isEmpty()) return;
@@ -348,71 +388,48 @@ public class Model {
         for (Quote quote : quotes
         ) {
             String baseUrl = "https://reliabletheatrecompany.com/";
-            if (quote.getCompany().equals("unreliabletheatrecompany.com"))
-                baseUrl = "https://unreliabletheatrecompany.com/";
-            boolean succ = true;
-            var res = webClientBuilder
-                    .baseUrl(baseUrl)
-                    .build()
-                    .put()
-                    .uri(uriBuilder -> uriBuilder
-                            .pathSegment("shows")
-                            .pathSegment(quote.getShowId().toString())
-                            .pathSegment("seats")
-                            .pathSegment(quote.getSeatId().toString())
-                            .pathSegment("ticket")
-                            .queryParam("key", KEY)
-                            .queryParam("customer", customer)
-                            .build())
-                    .retrieve()
-                    .onStatus(e -> e.is4xxClientError(), clientResponse -> {
-                        for (Ticket ticket : tickets
-                        ) {
-                            try {
-                                String baseUrl_ = "https://reliabletheatrecompany.com/";
-                                if (ticket.getCompany().equals("unreliabletheatrecompany.com"))
-                                    baseUrl_ = "https://unreliabletheatrecompany.com/";
-                                var del = webClientBuilder
-                                        .baseUrl(baseUrl_)
-                                        .build()
-                                        .delete()
-                                        .uri(uriBuilder -> uriBuilder
-                                                .pathSegment("shows")
-                                                .pathSegment(ticket.getShowId().toString())
-                                                .pathSegment("seats")
-                                                .pathSegment(ticket.getSeatId().toString())
-                                                .pathSegment("ticket")
-                                                .pathSegment(ticket.getTicketId().toString())
-                                                .queryParam("key", KEY)
-                                                .build())
-                                        .retrieve()
-                                        .onStatus(e -> e.is4xxClientError(), clientResponse1 -> {
-                                            return Mono.error(new RuntimeException("404 client error"));
-                                        })
-                                        .bodyToMono(String.class)
-                                        .retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2))
-                                                .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
-                                        .block();
-                            } catch (RuntimeException e) {
-                                continue;
-                            }
+            if (quote.getCompany().equals("localCompany")){
+                try {
+                    tickets.add(db.saveTicket(quote.getCompany(), quote.getShowId(), quote.getSeatId(), customer));
+                }catch (Exception e){
+                    rollback(tickets);
+                    e.printStackTrace();
+                    return;
+                }
 
-                        }
-                        return Mono.error(new Exception());
-                    })
-                    .bodyToMono(Ticket.class)
-                    .retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2))
-                            .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
-                    .block();
-            tickets.add(res);
+            }
+            else{
+                if (quote.getCompany().equals("unreliabletheatrecompany.com"))
+                    baseUrl = "https://unreliabletheatrecompany.com/";
+                boolean succ = true;
+                var res = webClientBuilder
+                        .baseUrl(baseUrl)
+                        .build()
+                        .put()
+                        .uri(uriBuilder -> uriBuilder
+                                .pathSegment("shows")
+                                .pathSegment(quote.getShowId().toString())
+                                .pathSegment("seats")
+                                .pathSegment(quote.getSeatId().toString())
+                                .pathSegment("ticket")
+                                .queryParam("key", KEY)
+                                .queryParam("customer", customer)
+                                .build())
+                        .retrieve()
+                        .onStatus(e -> e.is4xxClientError(), clientResponse -> {
+                            rollback(tickets);
+                            return Mono.error(new Exception());
+                        })
+                        .bodyToMono(Ticket.class)
+                        .retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2))
+                                .filter(e -> e instanceof WebClientResponseException && ((WebClientResponseException) e).getStatusCode().is5xxServerError()))
+                        .block();
+                tickets.add(res);
+            }
+
         }
+        if(tickets.isEmpty()) return;
         Booking newBooking = new Booking(UUID.randomUUID(), LocalDateTime.now(), tickets, customer);
         db.addBookingToDB(newBooking);
-
-
-        /*if(bookinng.containsKey(customer))
-            bookinng.get(customer).add(newBooking);
-        else
-            bookinng.put(customer, new ArrayList<Booking>(Arrays.asList(newBooking)));*/
     }
 }

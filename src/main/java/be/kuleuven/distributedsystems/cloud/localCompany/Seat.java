@@ -17,7 +17,7 @@ import java.io.Serializable;
  */
 
 public class Seat implements Serializable {
-    private String seatID;
+    private String seatId;
     private String time;
     private String name;
     private boolean available;
@@ -27,7 +27,7 @@ public class Seat implements Serializable {
     public Seat(){}
 
     public Seat(String seatId, String time, String name, boolean available, String type, double price){
-        this.seatID = seatId;
+        this.seatId = seatId;
         this.time = time;
         this.name = name;
         this.available = available;
@@ -44,12 +44,12 @@ public class Seat implements Serializable {
     }
 
 
-    public String getSeatID() {
-        return seatID;
+    public String getSeatId() {
+        return seatId;
     }
 
-    public void setSeatID(String seatID) {
-        this.seatID = seatID;
+    public void setSeatId(String seatId) {
+        this.seatId = seatId;
     }
 
 
@@ -69,7 +69,7 @@ public class Seat implements Serializable {
         this.name = name;
     }
 
-    public boolean isAvailable() {
+    public boolean getAvailable() {
         return available;
     }
 

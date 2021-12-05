@@ -19,17 +19,17 @@ import java.util.Map;
  */
 
 public class Show implements Serializable {
-    private String showID;
+    private String showId;
     private String company;
     private String name;
     private String location;
     private String image;
-    private Map<String, Seat> seats;
+    private Map<String, List<String>> seats;
 
     public Show(){}
 
-    public Show(String showID, String company, String name, String location, String image, Map<String, Seat> seats){
-        this.showID = showID;
+    public Show(String showId, String company, String name, String location, String image, Map<String, List<String>> seats){
+        this.showId = showId;
         this.company = company;
         this.name = name;
         this.location = location;
@@ -37,12 +37,12 @@ public class Show implements Serializable {
         this.seats = seats;
     }
 
-    public String getShowID() {
-        return showID;
+    public String getShowId() {
+        return showId;
     }
 
-    public void setShowID(String showID) {
-        this.showID = showID;
+    public void setShowId(String showId) {
+        this.showId = showId;
     }
 
     public String getName() {
@@ -69,13 +69,14 @@ public class Show implements Serializable {
         this.image = image;
     }
 
-    public Map<String, Seat> getSeats() {
+    public Map<String, List<String>> getSeats() {
         return seats;
     }
 
-    public void setSeats(Map<String, Seat> seats) {
+    public void setSeats(Map<String, List<String>> seats) {
         this.seats = seats;
     }
+
     public String getCompany() {
         return company;
     }

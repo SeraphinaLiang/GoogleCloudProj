@@ -1,25 +1,21 @@
 package be.kuleuven.distributedsystems.cloud.firestore;
 
 import be.kuleuven.distributedsystems.cloud.entities.Booking;
-import be.kuleuven.distributedsystems.cloud.entities.Ticket;
+import be.kuleuven.distributedsystems.cloud.localCompany.Ticket;
 import be.kuleuven.distributedsystems.cloud.localCompany.Seat;
 import be.kuleuven.distributedsystems.cloud.localCompany.Show;
-import ch.qos.logback.core.util.FileUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.common.collect.Lists;
-import com.google.errorprone.annotations.Var;
-import net.minidev.json.parser.JSONParser;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -30,7 +26,7 @@ public class CloudFirestore implements ApplicationRunner {
 
     private Firestore firestore = null;
 
-    private static final String TIMEPATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final String TIMEPATTERN = "yyyy-MM-dd'T'HH:mm:ss";
 
     public CloudFirestore() {
 
@@ -66,13 +62,13 @@ public class CloudFirestore implements ApplicationRunner {
             data.put("customer", booking.getCustomer());
             data.put("id", booking.getId().toString());
             data.put("tickets", new ArrayList<Map<String, Object>>(){{
-                for (Ticket t:booking.getTickets()){
+                for (be.kuleuven.distributedsystems.cloud.entities.Ticket t:booking.getTickets()){
                     Map<String, Object> map = new HashMap<>();
                     map.put("company", t.getCompany());
                     map.put("customer", t.getCustomer());
-                    map.put("seatID", t.getSeatId().toString());
-                    map.put("showID", t.getShowId().toString());
-                    map.put("ticketID", t.getTicketId().toString());
+                    map.put("seatId", t.getSeatId().toString());
+                    map.put("showId", t.getShowId().toString());
+                    map.put("ticketId", t.getTicketId().toString());
                     add(map);
                 }
             }});
@@ -106,28 +102,19 @@ public class CloudFirestore implements ApplicationRunner {
     public List<Booking> getAllBookingsFromDB() {
         List<Booking> bookings = new ArrayList<>();
         try {
-            //asynchronously retrieve all documents
             ApiFuture<QuerySnapshot> future = firestore.collection("bookings").get();
-            // future.get() blocks on response
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-            for (QueryDocumentSnapshot document : documents) {
-
+            for (DocumentSnapshot document : documents) {
                 Map<String, Object> map = document.getData();
-
-                for (Map.Entry<String, Object> stringObjectEntry : map.entrySet()) {
-
-                    System.out.println(document.getData()+"\n----------------");  //JSON object string
-                    System.out.println(stringObjectEntry+"\n-----------------");  // object string
-
-
-
-
-                    //Booking b = document.toObject(Booking.class);
-                   // Booking b = (Booking) stringObjectEntry.getValue();
-                  //  bookings.add(b);
-                }
+                Booking b = new Booking(UUID.fromString(map.get("id").toString()), LocalDateTime.parse(map.get("time").toString(), DateTimeFormatter.ofPattern(TIMEPATTERN)),
+                        new ArrayList<>(){{
+                            for (Object o:(ArrayList)map.get("tickets")){
+                                Map<String, String> m = (Map)o;
+                                add(new be.kuleuven.distributedsystems.cloud.entities.Ticket(m.get("company"), UUID.fromString(m.get("showId")), UUID.fromString(m.get("seatId")), UUID.fromString(m.get("ticketId")), m.get("customer")));
+                            }
+                        }}, map.get("customer").toString());
+                bookings.add(b);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,22 +133,10 @@ public class CloudFirestore implements ApplicationRunner {
                         new ArrayList<>(){{
                             for (Object o:(ArrayList)map.get("tickets")){
                                 Map<String, String> m = (Map)o;
-                                add(new Ticket(m.get("company"), UUID.fromString(m.get("showID")), UUID.fromString(m.get("seatID")), UUID.fromString(m.get("ticketID")), m.get("customer")));
+                                add(new be.kuleuven.distributedsystems.cloud.entities.Ticket(m.get("company"), UUID.fromString(m.get("showId")), UUID.fromString(m.get("seatId")), UUID.fromString(m.get("ticketId")), m.get("customer")));
                             }
                         }}, map.get("customer").toString());
                 bookings.add(b);
-//                Map<String, Object> map = document.getData();
-//                assert map != null;
-//                for (Map.Entry<String, Object> stringObjectEntry : map.entrySet()) {
-//
-//                    //System.out.println(stringObjectEntry.getKey());
-//                    //System.out.println(stringObjectEntry.getValue());
-//                    //System.out.println(document.toString());
-//                    //Booking b = document.toObject(Booking.class);
-//                   // Booking b = (Booking) stringObjectEntry.getValue();
-//                   // bookings.add(b);
-//                }
-
             }
         } catch (ExecutionException | InterruptedException e1) {
             e1.printStackTrace();
@@ -178,7 +153,7 @@ public class CloudFirestore implements ApplicationRunner {
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
             for (DocumentSnapshot document:documents){
                 Show show = document.toObject(Show.class);
-                shows.add(new be.kuleuven.distributedsystems.cloud.entities.Show(show.getCompany(), UUID.fromString(show.getShowID()), show.getName(),
+                shows.add(new be.kuleuven.distributedsystems.cloud.entities.Show(show.getCompany(), UUID.fromString(show.getShowId()), show.getName(),
                         show.getLocation(), show.getImage()));
             }
         }catch (ExecutionException|InterruptedException e){
@@ -188,13 +163,133 @@ public class CloudFirestore implements ApplicationRunner {
         return shows;
     }
 
-    /**
-     * local company persist all shows, seats and tickets in Cloud Firestore.
-     */
+    public be.kuleuven.distributedsystems.cloud.entities.Show getShowbyId(UUID showId){
+        be.kuleuven.distributedsystems.cloud.entities.Show show = new be.kuleuven.distributedsystems.cloud.entities.Show();
+        try {
+            DocumentReference docRef  =
+                    firestore.collection("shows").document(showId.toString());
+            Show showLocal = docRef.get().get().toObject(Show.class);
+            show = new be.kuleuven.distributedsystems.cloud.entities.Show(showLocal.getCompany(), UUID.fromString(showLocal.getShowId()),
+                    showLocal.getName(), showLocal.getLocation(), showLocal.getImage());
+        }catch (ExecutionException|InterruptedException e){
+            e.printStackTrace();
+        }
+        return show;
+    }
+
+    public List<LocalDateTime> getLocalDateTimeByShowId(UUID showId){
+        List<LocalDateTime> times = new ArrayList<>();
+        try {
+            DocumentReference docRef =
+                    firestore.collection("shows").document(showId.toString());
+            Show showLocal = docRef.get().get().toObject(Show.class);
+            Set<String> set = showLocal.getSeats().keySet();
+            for (String s:set){
+                times.add(LocalDateTime.parse(s, DateTimeFormatter.ofPattern(TIMEPATTERN)));
+            }
+        }catch (ExecutionException|InterruptedException e){
+            e.printStackTrace();
+        }
+        return times;
+    }
+
+    public List<be.kuleuven.distributedsystems.cloud.entities.Seat> getAvailableSeats(UUID showId, LocalDateTime time){
+        List<be.kuleuven.distributedsystems.cloud.entities.Seat> seats = new ArrayList<>();
+        try {
+            CollectionReference seatsRef =
+                    firestore.collection("seats");
+            DocumentReference docRef =
+                    firestore.collection("shows").document(showId.toString());
+            Show show = docRef.get().get().toObject(Show.class);
+            List<String> seatsCandidate = show.getSeats().get(time.format(DateTimeFormatter.ofPattern(TIMEPATTERN)));
+            for (String seatCandidate:seatsCandidate){
+                Seat seat = seatsRef.document(seatCandidate).get().get().toObject(Seat.class);
+                if(seat.getAvailable()){
+                    seats.add(new be.kuleuven.distributedsystems.cloud.entities.Seat(show.getCompany(), showId, UUID.fromString(seat.getSeatId()),
+                            LocalDateTime.parse(seat.getTime(), DateTimeFormatter.ofPattern(TIMEPATTERN)), seat.getType(), seat.getName(), seat.getPrice()));
+                }
+            }
+        }catch (ExecutionException|InterruptedException e){
+            e.printStackTrace();
+        }
+        return seats;
+    }
+
+    public be.kuleuven.distributedsystems.cloud.entities.Seat getSeatById(UUID showId, UUID seatId){
+        be.kuleuven.distributedsystems.cloud.entities.Seat s = new be.kuleuven.distributedsystems.cloud.entities.Seat();
+        try {
+            DocumentReference docRefShow =
+                    firestore.collection("shows").document(showId.toString());
+            DocumentReference docRefSeat =
+                    firestore.collection("seats").document(seatId.toString());
+            Show show = docRefShow.get().get().toObject(Show.class);
+            Seat seat = docRefSeat.get().get().toObject(Seat.class);
+            s = new be.kuleuven.distributedsystems.cloud.entities.Seat(show.getCompany(), showId, UUID.fromString(seat.getSeatId()),
+                    LocalDateTime.parse(seat.getTime(), DateTimeFormatter.ofPattern(TIMEPATTERN)), seat.getType(), seat.getName(), seat.getPrice());
+        }catch (ExecutionException|InterruptedException e){
+            e.printStackTrace();
+        }
+        return s;
+    }
+
+    public be.kuleuven.distributedsystems.cloud.entities.Ticket getTicket(UUID showId, UUID seatId){
+        be.kuleuven.distributedsystems.cloud.entities.Ticket ticket = new be.kuleuven.distributedsystems.cloud.entities.Ticket();
+        try{
+            Ticket ticketLocal
+                    = firestore.collection("tickets").whereEqualTo("seatId", seatId.toString())
+                    .whereEqualTo("showId", seatId.toString()).get().get().toObjects(Ticket.class).get(0);
+            ticket = new be.kuleuven.distributedsystems.cloud.entities.Ticket(ticketLocal.getCompany(), UUID.fromString(ticketLocal.getShowId()),
+                    UUID.fromString(ticketLocal.getSeatId()), UUID.fromString(ticketLocal.getTicketId()), ticketLocal.getCustomer());
+        }catch (ExecutionException|InterruptedException e){
+            e.printStackTrace();
+        }
+        return ticket;
+    }
+
+    public be.kuleuven.distributedsystems.cloud.entities.Ticket saveTicket(String company, UUID showId, UUID seatId, String customer) throws Exception{
+        final UUID ticketId = UUID.randomUUID();
+//        final DocumentReference docRefTicket =
+//                firestore.collection("tickets").document(ticketId.toString());
+        final DocumentReference docRefSeat =
+                firestore.collection("seats").document(seatId.toString());
+        ApiFuture<String> futureTransaction = firestore.runTransaction(transaction -> {
+            //Seat seat = transaction.get(docRefSeat).get().toObject(Seat.class);
+            if(true){
+                //transaction.set(docRefTicket, new Ticket(company, showId.toString(), seatId.toString(), ticketId.toString(), customer));
+                transaction.update(docRefSeat, "available", false);
+                return "Success";
+            }
+            else{
+                return "false";
+//                throw new Exception("Already booked");
+            }
+
+        });
+        System.out.println(futureTransaction.get());
+        return new be.kuleuven.distributedsystems.cloud.entities.Ticket(company, showId, seatId, ticketId, customer);
+    }
+
+    public String deleteTicket(UUID ticketId) throws Exception{
+        final DocumentReference docRefTicket =
+                firestore.collection("tickets").document(ticketId.toString());
+        if (!docRefTicket.get().get().exists()) return "not exist";
+        final DocumentReference docRefSeat =
+                firestore.collection("seats").document((String)docRefTicket.get().get().get("seatId"));
+        ApiFuture<String> futureTransaction = firestore.runTransaction(transaction -> {
+            transaction.update(docRefSeat, "available", true);
+            transaction.delete(docRefTicket);
+            return "Success";
+        }) ;
+        return futureTransaction.get();
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception{
         CollectionReference collectionShows = firestore.collection("shows");
+        CollectionReference collectionSeats = firestore.collection("seats");
+
+//        deleteCollection(collectionSeats, 500);
+//        deleteCollection(collectionShows, 500);
         ApiFuture<QuerySnapshot> future =
                 collectionShows.get();
         if (!future.get().isEmpty()) return;
@@ -203,17 +298,41 @@ public class CloudFirestore implements ApplicationRunner {
                     new ObjectMapper().readValue(new File("src/main/resources/data.json"), HashMap.class);
             for (Object object:(ArrayList)json.get("shows")) {
                 Map<String, Object> showmap = (Map)object;
-                Map<String, Seat> seats = new HashMap<>();
+                Map<String, List<String>> timeslots = new HashMap<>();
                 for (Object o:(ArrayList)showmap.get("seats")) {
-                    Map<String, Object> seatData = (Map)o;
                     UUID seat_uuid = UUID.randomUUID();
-                    seats.put(seat_uuid.toString(), new Seat(seat_uuid.toString(), (String)seatData.get("time"),
+                    Map<String, Object> seatData = (Map)o;
+                    if(!timeslots.containsKey((String)seatData.get("time"))){
+                        timeslots.put((String)seatData.get("time"), new ArrayList<String>());
+                    }
+                    timeslots.get(seatData.get("time")).add(seat_uuid.toString());
+                    collectionSeats.document(seat_uuid.toString()).set(new Seat(seat_uuid.toString(), (String)seatData.get("time"),
                             (String)seatData.get("name"), true, (String)seatData.get("type"), ((Integer)seatData.get("price")).doubleValue()));
                 }
                 UUID show_uuid = UUID.randomUUID();
-                Show show = new Show(show_uuid.toString(), "localCompany", (String)showmap.get("name"), (String)showmap.get("location"), (String)showmap.get("image"), seats);
+                Show show = new Show(show_uuid.toString(), "localCompany", (String)showmap.get("name"), (String)showmap.get("location"), (String)showmap.get("image"), timeslots);
                 collectionShows.document(show_uuid.toString()).set(show);
             }
+        }
+    }
+
+    void deleteCollection(CollectionReference collection, int batchSize) {
+        try {
+            // retrieve a small batch of documents to avoid out-of-memory errors
+            ApiFuture<QuerySnapshot> future = collection.limit(batchSize).get();
+            int deleted = 0;
+            // future.get() blocks on document retrieval
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+            for (QueryDocumentSnapshot document : documents) {
+                document.getReference().delete();
+                ++deleted;
+            }
+            if (deleted >= batchSize) {
+                // retrieve and delete another batch
+                deleteCollection(collection, batchSize);
+            }
+        } catch (Exception e) {
+            System.err.println("Error deleting collection : " + e.getMessage());
         }
     }
 }
