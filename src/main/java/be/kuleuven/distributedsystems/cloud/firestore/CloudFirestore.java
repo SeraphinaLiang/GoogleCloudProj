@@ -237,7 +237,7 @@ public class CloudFirestore implements ApplicationRunner {
         try{
             Ticket ticketLocal
                     = firestore.collection("tickets").whereEqualTo("seatId", seatId.toString())
-                    .whereEqualTo("showId", seatId.toString()).get().get().toObjects(Ticket.class).get(0);
+                    .whereEqualTo("showId", showId.toString()).get().get().toObjects(Ticket.class).get(0);
             ticket = new be.kuleuven.distributedsystems.cloud.entities.Ticket(ticketLocal.getCompany(), UUID.fromString(ticketLocal.getShowId()),
                     UUID.fromString(ticketLocal.getSeatId()), UUID.fromString(ticketLocal.getTicketId()), ticketLocal.getCustomer());
         }catch (ExecutionException|InterruptedException e){
