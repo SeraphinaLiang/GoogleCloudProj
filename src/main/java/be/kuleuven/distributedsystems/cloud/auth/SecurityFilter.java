@@ -32,6 +32,10 @@ public class SecurityFilter extends OncePerRequestFilter {
             String role = "";
             String email = "";
             try {
+                // verify the signature
+
+
+                // decode Identity Token and assign correct email and role
                 DecodedJWT jwt = JWT.decode(token);
                 Map<String, Claim> payloads = jwt.getClaims();
                 role = payloads.get("role").asString();
@@ -40,10 +44,6 @@ public class SecurityFilter extends OncePerRequestFilter {
                 e.printStackTrace();
             }
             User user = new User(email, role);
-
-            // TODO: (level 1) decode Identity Token and assign correct email and role
-            // TODO: (level 2) verify Identity Token
-
 
             SecurityContext context = SecurityContextHolder.getContext();
             context.setAuthentication(new FirebaseAuthentication(user));

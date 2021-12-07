@@ -1,6 +1,13 @@
 <component name="ArtifactManager">
   <artifact type="exploded-war" name="cloud:war exploded">
     <output-path>$PROJECT_DIR$/target/cloud-1.0</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <exploded>true</exploded>
+        <module>cloud</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
@@ -112,19 +119,11 @@
           <element id="library" level="project" name="Maven: com.jayway.jsonpath:json-path:2.5.0" />
           <element id="library" level="project" name="Maven: net.minidev:json-smart:2.4.7" />
           <element id="library" level="project" name="Maven: net.minidev:accessors-smart:2.4.7" />
-          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.32" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-webflux:2.5.4" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-reactor-netty:2.5.4" />
           <element id="library" level="project" name="Maven: io.projectreactor.netty:reactor-netty-http:1.0.10" />
-          <element id="library" level="project" name="Maven: io.netty:netty-codec-http:4.1.67.Final" />
-          <element id="library" level="project" name="Maven: io.netty:netty-common:4.1.67.Final" />
-          <element id="library" level="project" name="Maven: io.netty:netty-buffer:4.1.67.Final" />
-          <element id="library" level="project" name="Maven: io.netty:netty-transport:4.1.67.Final" />
-          <element id="library" level="project" name="Maven: io.netty:netty-codec:4.1.67.Final" />
-          <element id="library" level="project" name="Maven: io.netty:netty-handler:4.1.67.Final" />
           <element id="library" level="project" name="Maven: io.netty:netty-codec-http2:4.1.67.Final" />
           <element id="library" level="project" name="Maven: io.netty:netty-resolver-dns:4.1.67.Final" />
-          <element id="library" level="project" name="Maven: io.netty:netty-resolver:4.1.67.Final" />
           <element id="library" level="project" name="Maven: io.netty:netty-codec-dns:4.1.67.Final" />
           <element id="library" level="project" name="Maven: io.netty:netty-resolver-dns-native-macos:osx-x86_64:4.1.67.Final" />
           <element id="library" level="project" name="Maven: io.netty:netty-transport-native-unix-common:4.1.67.Final" />
@@ -157,10 +156,29 @@
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.12.4" />
           <element id="library" level="project" name="Maven: com.google.cloud:google-cloud-pubsub:1.114.3" />
           <element id="library" level="project" name="Maven: com.google.api.grpc:proto-google-cloud-pubsub-v1:1.96.3" />
-          <element id="library" level="project" name="Maven: com.auth0:java-jwt:3.18.1" />
+          <element id="library" level="project" name="Maven: com.auth0:java-jwt:3.18.2" />
           <element id="library" level="project" name="Maven: com.sendgrid:sendgrid-java:4.7.5" />
           <element id="library" level="project" name="Maven: com.sendgrid:java-http-client:4.3.7" />
-          <element id="library" level="project" name="Maven: org.bouncycastle:bcprov-jdk15on:1.69" />
+          <element id="library" level="project" name="Maven: org.bouncycastle:bcprov-jdk15on:1.59" />
+          <element id="library" level="project" name="Maven: com.google.firebase:firebase-admin:8.1.0" />
+          <element id="library" level="project" name="Maven: com.google.api-client:google-api-client:1.32.1" />
+          <element id="library" level="project" name="Maven: com.google.oauth-client:google-oauth-client:1.31.5" />
+          <element id="library" level="project" name="Maven: com.google.http-client:google-http-client-apache-v2:1.40.0" />
+          <element id="library" level="project" name="Maven: com.google.api-client:google-api-client-gson:1.32.1" />
+          <element id="library" level="project" name="Maven: com.google.cloud:google-cloud-storage:2.1.1" />
+          <element id="library" level="project" name="Maven: com.google.http-client:google-http-client-jackson2:1.40.0" />
+          <element id="library" level="project" name="Maven: com.google.apis:google-api-services-storage:v1-rev20210127-1.32.1" />
+          <element id="library" level="project" name="Maven: com.google.cloud:google-cloud-core-http:2.1.2" />
+          <element id="library" level="project" name="Maven: com.google.http-client:google-http-client-appengine:1.40.0" />
+          <element id="library" level="project" name="Maven: com.google.api:gax-httpjson:0.89.0" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.32" />
+          <element id="library" level="project" name="Maven: io.netty:netty-codec-http:4.1.67.Final" />
+          <element id="library" level="project" name="Maven: io.netty:netty-common:4.1.67.Final" />
+          <element id="library" level="project" name="Maven: io.netty:netty-buffer:4.1.67.Final" />
+          <element id="library" level="project" name="Maven: io.netty:netty-codec:4.1.67.Final" />
+          <element id="library" level="project" name="Maven: io.netty:netty-handler:4.1.67.Final" />
+          <element id="library" level="project" name="Maven: io.netty:netty-resolver:4.1.67.Final" />
+          <element id="library" level="project" name="Maven: io.netty:netty-transport:4.1.67.Final" />
         </element>
       </element>
       <element id="directory" name="META-INF">
