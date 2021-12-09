@@ -56,8 +56,36 @@ public class Authentication {
         return token;
     }
 
-    //Verify a Token
+    //verify the header, payload, and signature of the ID token.
     boolean verify(String token) {
+        // ID Token Header Claims
+        /**
+         * alg	Algorithm	"RS256"
+         * kid	Key ID	Must correspond to one of the public keys listed at https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com
+         */
+
+        // ID Token Payload Claims
+        /**
+         * exp	Expiration time	Must be in the future. The time is measured in seconds since the UNIX epoch.
+         * iat	Issued-at time	Must be in the past. The time is measured in seconds since the UNIX epoch.
+         * aud	Audience	Must be your Firebase project ID, the unique identifier for your Firebase project, which can be found in the URL of that project's console.
+         * iss	Issuer	Must be "https://securetoken.google.com/<projectId>", where <projectId> is the same project ID used for aud above.
+         * sub	Subject	Must be a non-empty string and must be the uid of the user or device.
+         * auth_time	Authentication time	Must be in the past. The time when the user authenticated.
+         */
+
+        // signature
+        /**
+         * Finally, ensure that the ID token was signed by the private key corresponding to the token's kid claim.
+         * Grab the public key from https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com
+         * and use a JWT library to verify the signature.
+         * Use the value of max-age in the Cache-Control header of the response from that endpoint to know when to refresh the public keys.
+         *
+         * If all the above verifications are successful,
+         * you can use the subject (sub) of the ID token as the uid of the corresponding user or device.
+         */
+
+
         DecodedJWT jwt = null;
         boolean valid = true;
         try {
