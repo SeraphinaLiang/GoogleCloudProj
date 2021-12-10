@@ -248,20 +248,19 @@ public class CloudFirestore implements ApplicationRunner {
 
     public be.kuleuven.distributedsystems.cloud.entities.Ticket saveTicket(String company, UUID showId, UUID seatId, String customer) throws Exception{
         final UUID ticketId = UUID.randomUUID();
-//        final DocumentReference docRefTicket =
-//                firestore.collection("tickets").document(ticketId.toString());
+        final DocumentReference docRefTicket =
+                firestore.collection("tickets").document(ticketId.toString());
         final DocumentReference docRefSeat =
                 firestore.collection("seats").document(seatId.toString());
         ApiFuture<String> futureTransaction = firestore.runTransaction(transaction -> {
-            //Seat seat = transaction.get(docRefSeat).get().toObject(Seat.class);
-            if(true){
-                //transaction.set(docRefTicket, new Ticket(company, showId.toString(), seatId.toString(), ticketId.toString(), customer));
+            Seat seat = transaction.get(docRefSeat).get().toObject(Seat.class);
+            if(seat.getAvailable()){
+                transaction.set(docRefTicket, new Ticket(company, showId.toString(), seatId.toString(), ticketId.toString(), customer));
                 transaction.update(docRefSeat, "available", false);
                 return "Success";
             }
             else{
-                return "false";
-//                throw new Exception("Already booked");
+                throw new Exception("Already booked");
             }
 
         });
