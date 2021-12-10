@@ -32,14 +32,17 @@ public class SecurityFilter extends OncePerRequestFilter {
             String role = "";
             String email = "";
             try {
-                // verify the signature
+                // verify the JWT
 
+                AuthenticationJWT authentication = new AuthenticationJWT();
+                authentication.verify(token);
 
                 // decode Identity Token and assign correct email and role
                 DecodedJWT jwt = JWT.decode(token);
                 Map<String, Claim> payloads = jwt.getClaims();
                 role = payloads.get("role").asString();
                 email = payloads.get("email").asString();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

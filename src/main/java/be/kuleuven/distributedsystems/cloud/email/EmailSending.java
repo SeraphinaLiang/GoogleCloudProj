@@ -17,7 +17,7 @@ public class EmailSending {
      * @param text      the content of email
      * API KEY : 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
      */
-    public boolean sendEmail(String userEmail, String subject, String text) {
+    public static boolean sendEmail(String userEmail, String subject, String text) {
 
         boolean success = false;
         Email from = new Email("yinqi.liang@student.kuleuven.be");

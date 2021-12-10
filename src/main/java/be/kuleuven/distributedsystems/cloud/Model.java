@@ -1,5 +1,6 @@
 package be.kuleuven.distributedsystems.cloud;
 
+import be.kuleuven.distributedsystems.cloud.email.EmailSending;
 import be.kuleuven.distributedsystems.cloud.entities.*;
 
 import be.kuleuven.distributedsystems.cloud.firestore.CloudFirestore;
@@ -400,6 +401,7 @@ public class Model {
                 try {
                     tickets.add(db.saveTicket(quote.getCompany(), quote.getShowId(), quote.getSeatId(), customer));
                 }catch (Exception e){
+                    sendEmail(customer, false, quotes);
                     rollback(tickets);
                     e.printStackTrace();
                     return;
@@ -446,7 +448,15 @@ public class Model {
         sendEmail(customer, true, quotes);
     }
 
-    void sendEmail(String email, boolean status, List<Quote> quote){
-        System.out.println(email + status + "!!!!!!!!!!!!!!!!!!!!!!!!");
+    void sendEmail(String customer, boolean status, List<Quote> quotes){
+        System.out.println(customer + status + "!!!!!!!!!!!!!!!!!!!!!!!!");
+//        String subject = status ? "Your booking is successful" : "Sorry, your booking fails";
+//        String content = "Dear " + customer + ",\n\tBelow are your bookings:\n";
+//        for (Quote quote:quotes){
+//            Show show = getShow(quote.getCompany(), quote.getShowId());
+//            Seat seat = getSeat(quote.getCompany(), quote.getShowId(), quote.getSeatId());
+//            content += "\t" + show.getName() + "\t" + seat.getType() + ":" + seat.getName() + "\n";
+//        }
+//        EmailSending.sendEmail(customer, subject, content);
     }
 }
