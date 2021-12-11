@@ -3,7 +3,6 @@ package be.kuleuven.distributedsystems.cloud.auth;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -11,7 +10,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.interfaces.RSAKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
@@ -27,21 +25,16 @@ public class AuthenticationJWT {
     boolean init = false;
     HashMap<String, String> publicKeys;
     SendHttps sendHttps = new SendHttps();
+    String IDtoken = "";
 
 
     //verify the header, payload, and signature of the ID token.
     boolean verify(String token) {
-
+        this.IDtoken = token;
         getPublicKeyFromGoogle();
-        //decode the token
         DecodedJWT jwt = JWT.decode(token);
 
         // ID Token Header Claims
-        /**
-         * alg	Algorithm	"RS256"
-         * kid	Key ID	Must correspond to one of the public keys listed at
-         * https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com
-         */
         String alg = jwt.getAlgorithm();
         String kid = jwt.getKeyId();
 
@@ -64,14 +57,6 @@ public class AuthenticationJWT {
         }
 
         // ID Token Payload Claims
-        /**
-         * exp	Expiration time	Must be in the future. The time is measured in seconds since the UNIX epoch.
-         * iat	Issued-at time	Must be in the past. The time is measured in seconds since the UNIX epoch.
-         * aud	Audience	Must be your Firebase project ID, the unique identifier for your Firebase project, which can be found in the URL of that project's console.
-         * iss	Issuer	Must be "https://securetoken.google.com/<projectId>", where <projectId> is the same project ID used for aud above.
-         * sub	Subject	Must be a non-empty string and must be the uid of the user or device.
-         * auth_time	AuthenticationJWT time	Must be in the past. The time when the user authenticated.
-         */
         Map<String, Claim> payloads = jwt.getClaims();
         Integer exp = payloads.get("exp").asInt();
         Integer iat = payloads.get("iat").asInt();
@@ -102,14 +87,7 @@ public class AuthenticationJWT {
         }
 
         // signature
-        /**
-         * Finally, ensure that the ID token was signed by the private key corresponding to the token's kid claim.
-         * and use a JWT library to verify the signature.
-         */
-
-        String sign = jwt.getSignature();
-
-        if (!verifySignature(sign)) {
+        if (!verifySignature()) {
             return false;
         }
         return true;
@@ -129,8 +107,9 @@ public class AuthenticationJWT {
         }
     }
 
-    private boolean verifySignature(String sign) {
+    private boolean verifySignature() {
 
+        DecodedJWT jwt = null;
         try {
             privRSA = PemUtils.readPrivateKeyFromFile("rsa-private.pem", "RSA");
             algorithmRS = Algorithm.RSA256((RSAPublicKey) pubRSA, (RSAPrivateKey) privRSA);
@@ -139,28 +118,15 @@ public class AuthenticationJWT {
                     .withIssuer("auth0")
                     .build();
 
-            //jwt = verifier.verify(token);
-
+            jwt = verifier.verify(IDtoken);
 
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JWTVerificationException e) {
             System.out.println("Invalid signature or claims");
+            return false;
         }
 
         return true;
     }
-
-
- /*   public static void main(String[] args) throws FirebaseAuthException {
-        AuthenticationJWT authentication = new AuthenticationJWT();
-        authentication.init();
-        String token = authentication.sign();
-        authentication.verify(token);
-
-        // idToken comes from the client app (shown above)
-        // check the source code
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-        String uid = decodedToken.getUid();
-    }*/
 }
