@@ -69,4 +69,8 @@ public class PemUtils {
         return PemUtils.getPrivateKey(bytes, algorithm);
     }
 
+    public static PublicKey string2publicKey(String s){
+        return getPublicKey(s.getBytes(),"RSA");
+    }
+
 }

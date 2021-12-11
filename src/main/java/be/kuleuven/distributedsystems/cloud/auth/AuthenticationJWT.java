@@ -7,60 +7,32 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.interfaces.RSAKeyProvider;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
 
 import java.io.IOException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.interfaces.RSAKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 //RS256	--RSA256	RSASSA-PKCS1-v1_5 with SHA-256
 public class AuthenticationJWT {
-    RSAKey pubRSA;
-    RSAKey privRSA;
+
+    PublicKey pubRSA;
+    PrivateKey privRSA;
     Algorithm algorithmRS;
 
-    void init() {
-        try {
-            //Read a Public Key
-            pubRSA = (RSAKey) PemUtils.readPublicKeyFromFile("", "RSA");
-            //Read a Private Key
-            privRSA = (RSAKey) PemUtils.readPrivateKeyFromFile("rsa-private.pem", "RSA");
+    boolean init = false;
+    HashMap<String, String> publicKeys;
+    SendHttps sendHttps = new SendHttps();
 
-            //RSA
-            RSAPublicKey publicKey = (RSAPublicKey) pubRSA;
-            RSAPrivateKey privateKey = (RSAPrivateKey) privRSA;
-            algorithmRS = Algorithm.RSA256(publicKey, privateKey);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    //Create and Sign a Token
-    String sign() {
-        String token = "";
-        try {
-            token = JWT.create()
-                    .withIssuer("auth0")
-                    .sign(algorithmRS);
-
-            System.out.println(token);
-        } catch (JWTCreationException e) {
-            e.printStackTrace();
-        }
-        return token;
-    }
 
     //verify the header, payload, and signature of the ID token.
     boolean verify(String token) {
+
+        getPublicKeyFromGoogle();
         //decode the token
         DecodedJWT jwt = JWT.decode(token);
 
@@ -73,11 +45,21 @@ public class AuthenticationJWT {
         String alg = jwt.getAlgorithm();
         String kid = jwt.getKeyId();
 
+        // alg
         if (!alg.equals("RS256")) {
             return false;
         }
-        //TODO
-        if (!(kid.equals("PK1") || kid.equals("PK2"))) {
+        // kid
+        boolean sameKID = false;
+        for (String id : publicKeys.keySet()) {
+            String pk = publicKeys.get(id);
+            if (kid.equals(pk)) {
+                pubRSA = PemUtils.string2publicKey(pk);
+                sameKID = true;
+                break;
+            }
+        }
+        if (!sameKID) {
             return false;
         }
 
@@ -122,23 +104,46 @@ public class AuthenticationJWT {
         // signature
         /**
          * Finally, ensure that the ID token was signed by the private key corresponding to the token's kid claim.
-         * Grab the public key from https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com
          * and use a JWT library to verify the signature.
-         * Use the value of max-age in the Cache-Control header of the response from that endpoint to know when to refresh the public keys.
-         *
-         * If all the above verifications are successful,
-         * you can use the subject (sub) of the ID token as the uid of the corresponding user or device.
          */
 
+        String sign = jwt.getSignature();
 
+        if (!verifySignature(sign)) {
+            return false;
+        }
+        return true;
+    }
 
+    private void getPublicKeyFromGoogle() {
+        // get first key
+        if (!init) {
+            publicKeys = sendHttps.getPublicKeys();
+            init = true;
+        }
 
+        // check time if expires
+        long currentTime = (System.currentTimeMillis() / 1000);
+        if ((currentTime - SendHttps.responseTime) > SendHttps.maxAge) {
+            publicKeys = sendHttps.getPublicKeys();
+        }
+    }
+
+    private boolean verifySignature(String sign) {
 
         try {
+            privRSA = PemUtils.readPrivateKeyFromFile("rsa-private.pem", "RSA");
+            algorithmRS = Algorithm.RSA256((RSAPublicKey) pubRSA, (RSAPrivateKey) privRSA);
+
             JWTVerifier verifier = JWT.require(algorithmRS)
                     .withIssuer("auth0")
-                    .build(); //Reusable verifier instance
-            jwt = verifier.verify(token);
+                    .build();
+
+            //jwt = verifier.verify(token);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
         } catch (JWTVerificationException e) {
             System.out.println("Invalid signature or claims");
         }
@@ -146,16 +151,8 @@ public class AuthenticationJWT {
         return true;
     }
 
-    private List<String> getPublicKeyFromGoogle(){
-        ArrayList<String> PKs = new ArrayList<>();
 
-
-
-        return PKs;
-    }
-
-
-    public static void main(String[] args) throws FirebaseAuthException {
+ /*   public static void main(String[] args) throws FirebaseAuthException {
         AuthenticationJWT authentication = new AuthenticationJWT();
         authentication.init();
         String token = authentication.sign();
@@ -165,5 +162,5 @@ public class AuthenticationJWT {
         // check the source code
         FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
         String uid = decodedToken.getUid();
-    }
+    }*/
 }

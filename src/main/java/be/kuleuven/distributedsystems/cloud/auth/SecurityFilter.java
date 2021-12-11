@@ -33,16 +33,16 @@ public class SecurityFilter extends OncePerRequestFilter {
             String email = "";
             try {
                 // verify the JWT
-
                 AuthenticationJWT authentication = new AuthenticationJWT();
-                authentication.verify(token);
-
-                // decode Identity Token and assign correct email and role
-                DecodedJWT jwt = JWT.decode(token);
-                Map<String, Claim> payloads = jwt.getClaims();
-                role = payloads.get("role").asString();
-                email = payloads.get("email").asString();
-
+                if (authentication.verify(token)) {
+                    // decode Identity Token and assign correct email and role
+                    DecodedJWT jwt = JWT.decode(token);
+                    Map<String, Claim> payloads = jwt.getClaims();
+                    role = payloads.get("role").asString();
+                    email = payloads.get("email").asString();
+                } else {
+                    throw new Exception("Verify JWT fail");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -72,7 +72,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         public Collection<? extends GrantedAuthority> getAuthorities() {
             if (user.isManager()) {
                 return List.of(new SimpleGrantedAuthority("manager"));
-            } else{
+            } else {
                 return new ArrayList<>();
             }
         }
