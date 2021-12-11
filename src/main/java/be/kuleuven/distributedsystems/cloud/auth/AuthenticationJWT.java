@@ -27,7 +27,6 @@ public class AuthenticationJWT {
     SendHttps sendHttps = new SendHttps();
     String IDtoken = "";
 
-
     //verify the header, payload, and signature of the ID token.
     boolean verify(String token) {
         this.IDtoken = token;
