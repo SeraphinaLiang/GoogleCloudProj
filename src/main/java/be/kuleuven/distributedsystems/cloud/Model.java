@@ -1,5 +1,6 @@
 package be.kuleuven.distributedsystems.cloud;
 
+import be.kuleuven.distributedsystems.cloud.email.EmailSending;
 import be.kuleuven.distributedsystems.cloud.entities.*;
 
 import be.kuleuven.distributedsystems.cloud.firestore.CloudFirestore;
@@ -307,7 +308,14 @@ public class Model {
     }
 
     public List<Booking> getBookings(String customer) {
-        return db.getBookingsByCustomerFromDB(customer);
+        List<Booking> bookings = db.getBookingsByCustomerFromDB(customer);
+        bookings .sort(new Comparator<Booking>() {
+            @Override
+            public int compare(Booking o1, Booking o2) {
+                return o2.getTime().compareTo(o1.getTime());
+            }
+        });
+        return bookings;
     }
 
     public List<Booking> getAllBookings() {
@@ -345,6 +353,7 @@ public class Model {
     public void rollback(List<Ticket> tickets){
         for (Ticket ticket : tickets
         ) {
+            System.out.println(ticket.getTicketId());
             try {
                 if(ticket.getCompany().equals("localCompany")){
                     db.deleteTicket(ticket.getTicketId());
@@ -376,7 +385,7 @@ public class Model {
                             .block();
                 }
             } catch (Exception e) {
-                continue;
+                e.printStackTrace();
             }
         }
     }
@@ -392,6 +401,7 @@ public class Model {
                 try {
                     tickets.add(db.saveTicket(quote.getCompany(), quote.getShowId(), quote.getSeatId(), customer));
                 }catch (Exception e){
+                    sendEmail(customer, false, quotes);
                     rollback(tickets);
                     e.printStackTrace();
                     return;
@@ -417,6 +427,7 @@ public class Model {
                                 .build())
                         .retrieve()
                         .onStatus(e -> e.is4xxClientError(), clientResponse -> {
+                            sendEmail(customer, false, quotes);
                             rollback(tickets);
                             return Mono.error(new Exception());
                         })
@@ -428,8 +439,24 @@ public class Model {
             }
 
         }
-        if(tickets.isEmpty()) return;
+        if(tickets.isEmpty()){
+            sendEmail(customer, false, quotes);
+            return;
+        }
         Booking newBooking = new Booking(UUID.randomUUID(), LocalDateTime.now(), tickets, customer);
         db.addBookingToDB(newBooking);
+        sendEmail(customer, true, quotes);
+    }
+
+    void sendEmail(String customer, boolean status, List<Quote> quotes){
+        System.out.println(customer + status + "!!!!!!!!!!!!!!!!!!!!!!!!");
+//        String subject = status ? "Your booking is successful" : "Sorry, your booking fails";
+//        String content = "Dear " + customer + ",\n\tBelow are your bookings:\n";
+//        for (Quote quote:quotes){
+//            Show show = getShow(quote.getCompany(), quote.getShowId());
+//            Seat seat = getSeat(quote.getCompany(), quote.getShowId(), quote.getSeatId());
+//            content += "\t" + show.getName() + "\t" + seat.getType() + ":" + seat.getName() + "\n";
+//        }
+//        EmailSending.sendEmail(customer, subject, content);
     }
 }

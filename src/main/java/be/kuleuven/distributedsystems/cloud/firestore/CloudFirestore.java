@@ -6,6 +6,10 @@ import be.kuleuven.distributedsystems.cloud.localCompany.Seat;
 import be.kuleuven.distributedsystems.cloud.localCompany.Show;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
+import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.gax.core.GoogleCredentialsProvider;
+import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
@@ -37,15 +41,23 @@ public class CloudFirestore implements ApplicationRunner {
 
     private void initialDB(String projectId, String jsonPath) {
         try {
-            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonPath))
-                    .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
-
             FirestoreOptions firestoreOptions =
                     FirestoreOptions.getDefaultInstance().toBuilder()
-                            .setProjectId(projectId)
-                           // .setCredentials(GoogleCredentials.getApplicationDefault())
-                            .setCredentials(credentials)
-                            .build();
+                    .setProjectId(projectId)
+                    .setHost("localhost:8085")
+                    .setCredentials(new FirestoreOptions.EmulatorCredentials())
+                    .setCredentialsProvider(FixedCredentialsProvider.create(new FirestoreOptions.EmulatorCredentials()))
+                    .build();
+
+//            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonPath))
+//                    .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
+//
+//            FirestoreOptions firestoreOptions =
+//                    FirestoreOptions.getDefaultInstance().toBuilder()
+//                            .setProjectId(projectId)
+//                           // .setCredentials(GoogleCredentials.getApplicationDefault())
+//                            .setCredentials(credentials)
+//                            .build();
             Firestore db = firestoreOptions.getService();
             this.firestore = db;
         } catch (Exception e) {
@@ -255,14 +267,13 @@ public class CloudFirestore implements ApplicationRunner {
                 firestore.collection("seats").document(seatId.toString());
         ApiFuture<String> futureTransaction = firestore.runTransaction(transaction -> {
             Seat seat = transaction.get(docRefSeat).get().toObject(Seat.class);
-            if(true){
+            if(seat.getAvailable()){
                 transaction.set(docRefTicket, new Ticket(company, showId.toString(), seatId.toString(), ticketId.toString(), customer));
                 transaction.update(docRefSeat, "available", false);
                 return "Success";
             }
             else{
-                return "false";
-//                throw new Exception("Already booked");
+                throw new Exception("Already booked");
             }
 
         });
