@@ -1,1 +1,38 @@
-^C��ֹ������������(Y/N)? 
+This is the Google Pub/Sub fake.
+Implementation may be incomplete or differ from the real system.
+12月 12, 2021 7:07:58 下午 com.google.cloud.pubsub.testing.v1.Main main
+信息: IAM integration is disabled. IAM policy methods and ACL checks are not supported
+12月 12, 2021 7:07:58 下午 io.gapi.emulators.netty.NettyUtil applyJava7LongHostnameWorkaround
+信息: Unable to apply Java 7 long hostname workaround.
+12月 12, 2021 7:07:58 下午 com.google.cloud.pubsub.testing.v1.Main main
+信息: Server started, listening on 8083
+12月 12, 2021 7:07:59 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+12月 12, 2021 7:09:23 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+12月 12, 2021 7:09:24 下午 io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+信息: Detected HTTP/2 connection.
+12月 12, 2021 7:10:01 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+12月 12, 2021 7:10:01 下午 io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+信息: Detected HTTP/2 connection.
+12月 12, 2021 7:12:56 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+12月 12, 2021 7:12:56 下午 io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+信息: Detected HTTP/2 connection.
+12月 12, 2021 7:16:04 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+12月 12, 2021 7:16:04 下午 io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+信息: Detected HTTP/2 connection.
+12月 12, 2021 7:20:05 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+12月 12, 2021 7:20:05 下午 io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+信息: Detected HTTP/2 connection.
+12月 12, 2021 7:32:52 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+12月 12, 2021 7:32:52 下午 io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+信息: Detected HTTP/2 connection.
+12月 12, 2021 7:33:14 下午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+信息: Adding handler(s) to newly registered Channel.
+12月 12, 2021 7:33:14 下午 io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+信息: Detected HTTP/2 connection.

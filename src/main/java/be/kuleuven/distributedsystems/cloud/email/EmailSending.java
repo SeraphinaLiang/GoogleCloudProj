@@ -20,12 +20,12 @@ public class EmailSending {
     public static boolean sendEmail(String userEmail, String subject, String text) {
 
         boolean success = false;
-        Email from = new Email("yinqi.liang@student.kuleuven.be");
+        Email from = new Email("mofan.deng@student.kuleuven.be");
         Email to = new Email(userEmail);
         Content content = new Content("text/plain", text);
         Mail mail = new Mail(from, subject, to, content);
 
-        SendGrid sg = new SendGrid("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");
+        SendGrid sg = new SendGrid("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");
         Request request = new Request();
         try {
             request.setMethod(Method.POST);

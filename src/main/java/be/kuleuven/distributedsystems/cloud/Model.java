@@ -449,14 +449,13 @@ public class Model {
     }
 
     void sendEmail(String customer, boolean status, List<Quote> quotes){
-        System.out.println(customer + status + "!!!!!!!!!!!!!!!!!!!!!!!!");
-//        String subject = status ? "Your booking is successful" : "Sorry, your booking fails";
-//        String content = "Dear " + customer + ",\n\tBelow are your bookings:\n";
-//        for (Quote quote:quotes){
-//            Show show = getShow(quote.getCompany(), quote.getShowId());
-//            Seat seat = getSeat(quote.getCompany(), quote.getShowId(), quote.getSeatId());
-//            content += "\t" + show.getName() + "\t" + seat.getType() + ":" + seat.getName() + "\n";
-//        }
-//        EmailSending.sendEmail(customer, subject, content);
+        String subject = status ? "Your booking is successful" : "Sorry, your booking fails";
+        String content = "Dear " + customer + ",\n\tBelow are your bookings:\n";
+        for (Quote quote:quotes){
+            Show show = getShow(quote.getCompany(), quote.getShowId());
+            Seat seat = getSeat(quote.getCompany(), quote.getShowId(), quote.getSeatId());
+            content += "\t" + show.getName() + "\t" + seat.getType() + ":" + seat.getName() + "\n";
+        }
+        EmailSending.sendEmail(customer, subject, content);
     }
 }
