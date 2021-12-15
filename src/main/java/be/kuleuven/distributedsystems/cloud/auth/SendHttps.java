@@ -48,7 +48,7 @@ public class SendHttps {
             for (Object o : obj.keySet()){
                 String id = o.toString();
                 String pk = obj.getString(id);
-
+                System.out.println(pk);
                 publicKeys.put(id,pk);
             }
         }

@@ -353,7 +353,6 @@ public class Model {
     public void rollback(List<Ticket> tickets){
         for (Ticket ticket : tickets
         ) {
-            System.out.println(ticket.getTicketId());
             try {
                 if(ticket.getCompany().equals("localCompany")){
                     db.deleteTicket(ticket.getTicketId());

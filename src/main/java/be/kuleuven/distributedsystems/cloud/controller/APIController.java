@@ -63,8 +63,6 @@ public class APIController {
     @PostMapping("/confirmCart")
     public ResponseEntity<Void> confirmCart(
             @CookieValue(value = "cart", required = false) String cartString) throws Exception {
-
-            System.out.println(cartString);
         try {
             Publisher publisher = PubsubManagement.getPublisher();
             String message = cartString;
@@ -93,9 +91,7 @@ public class APIController {
                     MoreExecutors.directExecutor());
         } finally {
             PubsubManagement.freePublisher();
-            PubsubManagement.freeChannel();
         }
-        //this.model.confirmQuotes(new ArrayList<>(cart), AuthController.getUser().getEmail());
         List<Quote> cart = Cart.fromCookie(cartString);
         cart.clear();
         ResponseCookie cookie = Cart.toCookie(cart);

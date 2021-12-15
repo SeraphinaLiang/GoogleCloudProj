@@ -25,8 +25,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-@Component
-public class CloudFirestore implements ApplicationRunner {
+
+public class CloudFirestore {
 
     private Firestore firestore = null;
 
@@ -295,38 +295,38 @@ public class CloudFirestore implements ApplicationRunner {
         return futureTransaction.get();
     }
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception{
-        CollectionReference collectionShows = firestore.collection("shows");
-        CollectionReference collectionSeats = firestore.collection("seats");
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception{
+//        CollectionReference collectionShows = firestore.collection("shows");
+//        CollectionReference collectionSeats = firestore.collection("seats");
 
 //        deleteCollection(collectionSeats, 500);
 //        deleteCollection(collectionShows, 500);
-        ApiFuture<QuerySnapshot> future =
-                collectionShows.get();
-        if (!future.get().isEmpty()) return;
-        else{
-            Map<String,Object> json =
-                    new ObjectMapper().readValue(new File("src/main/resources/data.json"), HashMap.class);
-            for (Object object:(ArrayList)json.get("shows")) {
-                Map<String, Object> showmap = (Map)object;
-                Map<String, List<String>> timeslots = new HashMap<>();
-                for (Object o:(ArrayList)showmap.get("seats")) {
-                    UUID seat_uuid = UUID.randomUUID();
-                    Map<String, Object> seatData = (Map)o;
-                    if(!timeslots.containsKey((String)seatData.get("time"))){
-                        timeslots.put((String)seatData.get("time"), new ArrayList<String>());
-                    }
-                    timeslots.get(seatData.get("time")).add(seat_uuid.toString());
-                    collectionSeats.document(seat_uuid.toString()).set(new Seat(seat_uuid.toString(), (String)seatData.get("time"),
-                            (String)seatData.get("name"), true, (String)seatData.get("type"), ((Integer)seatData.get("price")).doubleValue()));
-                }
-                UUID show_uuid = UUID.randomUUID();
-                Show show = new Show(show_uuid.toString(), "localCompany", (String)showmap.get("name"), (String)showmap.get("location"), (String)showmap.get("image"), timeslots);
-                collectionShows.document(show_uuid.toString()).set(show);
-            }
-        }
-    }
+//        ApiFuture<QuerySnapshot> future =
+//                collectionShows.get();
+//        if (!future.get().isEmpty()) return;
+//        else{
+//            Map<String,Object> json =
+//                    new ObjectMapper().readValue(new File("src/main/resources/data.json"), HashMap.class);
+//            for (Object object:(ArrayList)json.get("shows")) {
+//                Map<String, Object> showmap = (Map)object;
+//                Map<String, List<String>> timeslots = new HashMap<>();
+//                for (Object o:(ArrayList)showmap.get("seats")) {
+//                    UUID seat_uuid = UUID.randomUUID();
+//                    Map<String, Object> seatData = (Map)o;
+//                    if(!timeslots.containsKey((String)seatData.get("time"))){
+//                        timeslots.put((String)seatData.get("time"), new ArrayList<String>());
+//                    }
+//                    timeslots.get(seatData.get("time")).add(seat_uuid.toString());
+//                    collectionSeats.document(seat_uuid.toString()).set(new Seat(seat_uuid.toString(), (String)seatData.get("time"),
+//                            (String)seatData.get("name"), true, (String)seatData.get("type"), ((Integer)seatData.get("price")).doubleValue()));
+//                }
+//                UUID show_uuid = UUID.randomUUID();
+//                Show show = new Show(show_uuid.toString(), "localCompany", (String)showmap.get("name"), (String)showmap.get("location"), (String)showmap.get("image"), timeslots);
+//                collectionShows.document(show_uuid.toString()).set(show);
+//            }
+//        }
+//    }
 
     void deleteCollection(CollectionReference collection, int batchSize) {
         try {

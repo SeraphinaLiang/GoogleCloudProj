@@ -33,28 +33,16 @@ import java.util.concurrent.TimeUnit;
  * @version: $
  */
 
-@Component
-public class PubsubManagement implements ApplicationRunner{
-    private static ManagedChannel channel;
-    private static TransportChannelProvider channelProvider;
-    private static CredentialsProvider credentialsProvider;
+public class PubsubManagement{
     private static Publisher publisher = null;
-    /* private static final String projectId = "true-bit-333719";
+    private static final String projectId = "true-bit-333719";
     private static final String topicId = "projects/true-bit-333719/topics/handleBooking";
-    private static final String subsriptionId = "projects/true-bit-333719/topics/handleBooking";*/
-    private static final String projectId = "demo-distributed-systems-kul";
-    private static final String topicId = "topicid";
-    private static final String subsriptionId = "subscriptionid";
-    private static final String pushEndpoint = "http://localhost:8080/subscription";
 
     public static Publisher getPublisher(){
         try {
-            init();
             TopicName topicName = TopicName.of(projectId, topicId);
             publisher =
                     Publisher.newBuilder(topicName)
-                            .setChannelProvider(channelProvider)
-                            .setCredentialsProvider(credentialsProvider)
                             .build();
         }catch (IOException e){
             e.printStackTrace();
@@ -62,15 +50,6 @@ public class PubsubManagement implements ApplicationRunner{
         return publisher;
     }
 
-    public static void init(){
-        channel = ManagedChannelBuilder.forTarget("localhost:8083").usePlaintext().build();
-        channelProvider = FixedTransportChannelProvider.create(GrpcTransportChannel.create(channel));
-        credentialsProvider = NoCredentialsProvider.create();
-    }
-
-    public static void freeChannel(){
-        channel.shutdown();
-    }
 
     public static void freePublisher(){
         try {
@@ -80,45 +59,6 @@ public class PubsubManagement implements ApplicationRunner{
             }
         }catch (InterruptedException e){
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void run(ApplicationArguments args) throws Exception{
-
-        try {
-            init();
-            TopicName topicName = TopicName.of(projectId, topicId);
-            TopicAdminClient topicClient =
-                    TopicAdminClient.create(TopicAdminSettings.newBuilder()
-                            .setTransportChannelProvider(channelProvider)
-                            .setCredentialsProvider(credentialsProvider).build());
-            try {
-                topicClient.getTopic(topicName);
-            }catch (RuntimeException e){
-                topicClient.createTopic(topicName);
-            }
-
-
-            SubscriptionAdminClient subscriptionAdminClient = SubscriptionAdminClient.create(
-                    SubscriptionAdminSettings.newBuilder().setTransportChannelProvider(channelProvider)
-                            .setCredentialsProvider(credentialsProvider)
-                            .build()
-            );
-            ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subsriptionId);
-            try {
-                subscriptionAdminClient.getSubscription(subscriptionName);
-            }
-            catch (RuntimeException e){
-                PushConfig pushConfig = PushConfig.newBuilder().setPushEndpoint(pushEndpoint).build();
-                Subscription subscription =
-                        subscriptionAdminClient.createSubscription(subscriptionName, topicName, pushConfig, 10);
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        finally {
-            freeChannel();
         }
     }
 }
