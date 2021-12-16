@@ -41,23 +41,23 @@ public class CloudFirestore {
 
     private void initialDB(String projectId, String jsonPath) {
         try {
-            FirestoreOptions firestoreOptions =
-                    FirestoreOptions.getDefaultInstance().toBuilder()
-                    .setProjectId(projectId)
-                    .setHost("localhost:8085")
-                    .setCredentials(new FirestoreOptions.EmulatorCredentials())
-                    .setCredentialsProvider(FixedCredentialsProvider.create(new FirestoreOptions.EmulatorCredentials()))
-                    .build();
-
-//            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonPath))
-//                    .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
-//
 //            FirestoreOptions firestoreOptions =
 //                    FirestoreOptions.getDefaultInstance().toBuilder()
-//                            .setProjectId(projectId)
-//                           // .setCredentials(GoogleCredentials.getApplicationDefault())
-//                            .setCredentials(credentials)
-//                            .build();
+//                    .setProjectId(projectId)
+//                    .setHost("localhost:8085")
+//                    .setCredentials(new FirestoreOptions.EmulatorCredentials())
+//                    .setCredentialsProvider(FixedCredentialsProvider.create(new FirestoreOptions.EmulatorCredentials()))
+//                    .build();
+
+            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonPath))
+                    .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
+
+            FirestoreOptions firestoreOptions =
+                    FirestoreOptions.getDefaultInstance().toBuilder()
+                            .setProjectId(projectId)
+                           // .setCredentials(GoogleCredentials.getApplicationDefault())
+                            .setCredentials(credentials)
+                            .build();
             Firestore db = firestoreOptions.getService();
             this.firestore = db;
         } catch (Exception e) {
