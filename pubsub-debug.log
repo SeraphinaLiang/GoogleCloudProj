@@ -8,3 +8,5 @@ Implementation may be incomplete or differ from the real system.
 信息: Server started, listening on 8083
 12月 17, 2021 2:23:47 上午 io.gapi.emulators.grpc.GrpcServer$3 operationComplete
 信息: Adding handler(s) to newly registered Channel.
+*** shutting down gRPC server since JVM is shutting down
+*** server shut down

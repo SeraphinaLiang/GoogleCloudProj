@@ -37,7 +37,6 @@ import java.util.concurrent.ExecutionException;
 @Component
 public class CloudFirestore {
 
-
     private Firestore firestore = null;
     private static final String projectId = "true-bit-333719";
     private static final String bucketName = "true-bit-333719.appspot.com";
@@ -281,7 +280,6 @@ public class CloudFirestore {
             }
 
         });
-
         return new be.kuleuven.distributedsystems.cloud.entities.Ticket(company, showId, seatId, ticketId, customer);
     }
 

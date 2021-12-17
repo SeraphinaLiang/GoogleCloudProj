@@ -387,6 +387,7 @@ public class Model {
                 e.printStackTrace();
             }
         }
+        tickets.clear();
     }
 
     public void confirmQuotes(List<Quote> quotes, String customer) {
@@ -395,7 +396,6 @@ public class Model {
         ArrayList<Ticket> tickets = new ArrayList<>();
         for (Quote quote : quotes
         ) {
-            String baseUrl = "https://reliabletheatrecompany.com/";
             if (quote.getCompany().equals("localCompany")){
                 try {
                     tickets.add(db.saveTicket(quote.getCompany(), quote.getShowId(), quote.getSeatId(), customer));
@@ -408,6 +408,7 @@ public class Model {
 
             }
             else{
+                String baseUrl = "https://reliabletheatrecompany.com/";
                 if (quote.getCompany().equals("unreliabletheatrecompany.com"))
                     baseUrl = "https://unreliabletheatrecompany.com/";
                 boolean succ = true;

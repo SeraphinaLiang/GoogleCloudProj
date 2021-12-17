@@ -11,7 +11,7 @@ handlers:
     script: auto
 
 automatic_scaling:
-  max_concurrent_requests: 50
+  max_concurrent_requests: 1
   min_pending_latency: 5000ms
   max_pending_latency: 15000ms
   target_cpu_utilization: 0.9
