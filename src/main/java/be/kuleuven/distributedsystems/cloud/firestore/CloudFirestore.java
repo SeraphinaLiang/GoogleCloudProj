@@ -1,9 +1,9 @@
 package be.kuleuven.distributedsystems.cloud.firestore;
 
 import be.kuleuven.distributedsystems.cloud.entities.Booking;
-import be.kuleuven.distributedsystems.cloud.localCompany.Ticket;
 import be.kuleuven.distributedsystems.cloud.localCompany.Seat;
 import be.kuleuven.distributedsystems.cloud.localCompany.Show;
+import be.kuleuven.distributedsystems.cloud.localCompany.Ticket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -19,10 +19,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

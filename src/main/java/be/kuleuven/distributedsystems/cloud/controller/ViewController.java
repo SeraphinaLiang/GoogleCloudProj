@@ -4,19 +4,14 @@ import be.kuleuven.distributedsystems.cloud.Model;
 import be.kuleuven.distributedsystems.cloud.entities.Quote;
 import be.kuleuven.distributedsystems.cloud.entities.Seat;
 import be.kuleuven.distributedsystems.cloud.entities.Show;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

@@ -1,37 +1,10 @@
-package be.kuleuven.distributedsystems.cloud.controller;/**
- * @author ：mmzs
- * @date ：Created in 2021/11/22 23:44
- * @description：Pubsub Initiation and Logic
- * @modified By：
- * @version: $
- */
+package be.kuleuven.distributedsystems.cloud.controller;
 
-import com.google.api.gax.core.CredentialsProvider;
-import com.google.api.gax.core.NoCredentialsProvider;
-import com.google.api.gax.grpc.GrpcTransportChannel;
-import com.google.api.gax.rpc.FixedTransportChannelProvider;
-import com.google.api.gax.rpc.TransportChannelProvider;
-import com.google.cloud.pubsub.v1.*;
-import com.google.pubsub.v1.ProjectSubscriptionName;
-import com.google.pubsub.v1.PushConfig;
-import com.google.pubsub.v1.Subscription;
+import com.google.cloud.pubsub.v1.Publisher;
 import com.google.pubsub.v1.TopicName;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-
-/**
- * @author     ：mmzs
- * @date       ：Created in 2021/11/22 23:44
- * @description：Pubsub Initiation and Logic
- * @modified By：
- * @version: $
- */
 
 public class PubsubManagement{
     private static Publisher publisher = null;

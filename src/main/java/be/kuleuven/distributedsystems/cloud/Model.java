@@ -2,16 +2,13 @@ package be.kuleuven.distributedsystems.cloud;
 
 import be.kuleuven.distributedsystems.cloud.email.EmailSending;
 import be.kuleuven.distributedsystems.cloud.entities.*;
-
 import be.kuleuven.distributedsystems.cloud.firestore.CloudFirestore;
-import com.google.cloud.firestore.Firestore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
