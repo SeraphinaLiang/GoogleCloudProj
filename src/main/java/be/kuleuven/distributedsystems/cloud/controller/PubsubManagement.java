@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class PubsubManagement{
     private static Publisher publisher = null;
     private static final String projectId = "true-bit-333719";
-    private static final String topicId = "projects/true-bit-333719/topics/handleBooking";
+    private static final String topicId = "handleBooking";
 
     public static Publisher getPublisher(){
         try {

@@ -46,6 +46,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                return;
             }
             User user = new User(email, role);
 

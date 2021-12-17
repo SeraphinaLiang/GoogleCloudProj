@@ -126,7 +126,6 @@ public class AuthenticationJWT {
             JWTVerifier verifier = JWT.require(algorithmRS)
                     .withIssuer("auth0")
                     .build();
-
             jwt = verifier.verify(IDtoken);
 
         } catch (JWTVerificationException e) {

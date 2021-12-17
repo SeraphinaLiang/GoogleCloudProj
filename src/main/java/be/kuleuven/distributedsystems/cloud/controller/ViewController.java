@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -182,21 +183,7 @@ public class ViewController {
         return modelAndView;
     }
 
-//    @PostMapping("/subscription")
-//    public ResponseEntity<Void> subscription(@RequestBody String body) {
-//        try {
-//            JsonObject jsonObject = new Gson().fromJson(body, JsonObject.class);
-//            JsonObject jsonObject_message = new Gson().fromJson(jsonObject.get("message"), JsonObject.class);
-//            String decoded = new String(Base64.getDecoder().decode(jsonObject_message.get("data").toString().replaceAll("\"", "")));
-//            JsonObject jsonObject_attributes = new Gson().fromJson(jsonObject_message.get("attributes"), JsonObject.class);
-//            List<Quote> cart = Cart.fromCookie(decoded);
-//            this.model.confirmQuotes(new ArrayList<>(cart), jsonObject_attributes.get("customer").toString().replaceAll("\"", ""));
-//            //this.model.confirmQuotes(new ArrayList<>(cart), AuthController.getUser().getEmail());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return ResponseEntity.ok().build();
-//    }
+
 
     @PostMapping("/subscription")
     public ResponseEntity<Void> subscription(
@@ -209,7 +196,6 @@ public class ViewController {
             JsonObject jsonObject_attributes = new Gson().fromJson(jsonObject_message.get("attributes"), JsonObject.class);
             List<Quote> cart = Cart.fromCookie(decoded);
             this.model.confirmQuotes(new ArrayList<>(cart), jsonObject_attributes.get("customer").toString().replaceAll("\"", ""));
-            //this.model.confirmQuotes(new ArrayList<>(cart), AuthController.getUser().getEmail());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -11,45 +11,49 @@ import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.ReadChannel;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-
+@Component
 public class CloudFirestore {
 
-    private Firestore firestore = null;
 
+    private Firestore firestore = null;
+    private static final String projectId = "true-bit-333719";
+    private static final String bucketName = "true-bit-333719.appspot.com";
     private static final String TIMEPATTERN = "yyyy-MM-dd'T'HH:mm:ss";
 
     public CloudFirestore() {
-
         if (firestore == null) {
-            initialDB("true-bit-333719", "true-bit-333719-2edd7ecb552b.json");
+            ByteArrayInputStream byteArrayInputStream = getBytesStream(projectId, bucketName, "true-bit-333719-2edd7ecb552b.json");
+            initialDB(projectId, byteArrayInputStream);
         }
     }
 
-    private void initialDB(String projectId, String jsonPath) {
+    private void initialDB(String projectId, InputStream inputStream) {
         try {
-//            FirestoreOptions firestoreOptions =
-//                    FirestoreOptions.getDefaultInstance().toBuilder()
-//                    .setProjectId(projectId)
-//                    .setHost("localhost:8085")
-//                    .setCredentials(new FirestoreOptions.EmulatorCredentials())
-//                    .setCredentialsProvider(FixedCredentialsProvider.create(new FirestoreOptions.EmulatorCredentials()))
-//                    .build();
 
-            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonPath))
+            GoogleCredentials credentials = GoogleCredentials.fromStream(inputStream)
                     .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
 
             FirestoreOptions firestoreOptions =
@@ -277,7 +281,7 @@ public class CloudFirestore {
             }
 
         });
-        System.out.println(futureTransaction.get());
+
         return new be.kuleuven.distributedsystems.cloud.entities.Ticket(company, showId, seatId, ticketId, customer);
     }
 
@@ -295,38 +299,39 @@ public class CloudFirestore {
         return futureTransaction.get();
     }
 
-//    @Override
-//    public void run(ApplicationArguments args) throws Exception{
-//        CollectionReference collectionShows = firestore.collection("shows");
-//        CollectionReference collectionSeats = firestore.collection("seats");
+    @Autowired
+    public void run(ApplicationArguments args) throws Exception{
+        CollectionReference collectionShows = firestore.collection("shows");
+        CollectionReference collectionSeats = firestore.collection("seats");
 
-//        deleteCollection(collectionSeats, 500);
-//        deleteCollection(collectionShows, 500);
-//        ApiFuture<QuerySnapshot> future =
-//                collectionShows.get();
-//        if (!future.get().isEmpty()) return;
-//        else{
-//            Map<String,Object> json =
-//                    new ObjectMapper().readValue(new File("src/main/resources/data.json"), HashMap.class);
-//            for (Object object:(ArrayList)json.get("shows")) {
-//                Map<String, Object> showmap = (Map)object;
-//                Map<String, List<String>> timeslots = new HashMap<>();
-//                for (Object o:(ArrayList)showmap.get("seats")) {
-//                    UUID seat_uuid = UUID.randomUUID();
-//                    Map<String, Object> seatData = (Map)o;
-//                    if(!timeslots.containsKey((String)seatData.get("time"))){
-//                        timeslots.put((String)seatData.get("time"), new ArrayList<String>());
-//                    }
-//                    timeslots.get(seatData.get("time")).add(seat_uuid.toString());
-//                    collectionSeats.document(seat_uuid.toString()).set(new Seat(seat_uuid.toString(), (String)seatData.get("time"),
-//                            (String)seatData.get("name"), true, (String)seatData.get("type"), ((Integer)seatData.get("price")).doubleValue()));
-//                }
-//                UUID show_uuid = UUID.randomUUID();
-//                Show show = new Show(show_uuid.toString(), "localCompany", (String)showmap.get("name"), (String)showmap.get("location"), (String)showmap.get("image"), timeslots);
-//                collectionShows.document(show_uuid.toString()).set(show);
-//            }
-//        }
-//    }
+        //deleteCollection(collectionSeats, 500);
+        //deleteCollection(collectionShows, 500);
+
+        ApiFuture<QuerySnapshot> future =
+                collectionShows.get();
+        if (!future.get().isEmpty()) return;
+        else{
+            Map<String,Object> json =
+                    new ObjectMapper().readValue(getBytesStream(projectId, bucketName, "data.json"), HashMap.class);
+            for (Object object:(ArrayList)json.get("shows")) {
+                Map<String, Object> showmap = (Map)object;
+                Map<String, List<String>> timeslots = new HashMap<>();
+                for (Object o:(ArrayList)showmap.get("seats")) {
+                    UUID seat_uuid = UUID.randomUUID();
+                    Map<String, Object> seatData = (Map)o;
+                    if(!timeslots.containsKey((String)seatData.get("time"))){
+                        timeslots.put((String)seatData.get("time"), new ArrayList<String>());
+                    }
+                    timeslots.get(seatData.get("time")).add(seat_uuid.toString());
+                    collectionSeats.document(seat_uuid.toString()).set(new Seat(seat_uuid.toString(), (String)seatData.get("time"),
+                            (String)seatData.get("name"), true, (String)seatData.get("type"), ((Integer)seatData.get("price")).doubleValue()));
+                }
+                UUID show_uuid = UUID.randomUUID();
+                Show show = new Show(show_uuid.toString(), "localCompany", (String)showmap.get("name"), (String)showmap.get("location"), (String)showmap.get("image"), timeslots);
+                collectionShows.document(show_uuid.toString()).set(show);
+            }
+        }
+    }
 
     void deleteCollection(CollectionReference collection, int batchSize) {
         try {
@@ -346,5 +351,16 @@ public class CloudFirestore {
         } catch (Exception e) {
             System.err.println("Error deleting collection : " + e.getMessage());
         }
+    }
+
+    public static ByteArrayInputStream getBytesStream(
+            String projectId, String bucketName, String objectName) {
+
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+
+        Blob blob = storage.get(BlobId.of(bucketName, objectName));
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(blob.getContent());
+        return byteArrayInputStream;
+
     }
 }
