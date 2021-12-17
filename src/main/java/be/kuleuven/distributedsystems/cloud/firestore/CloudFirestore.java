@@ -6,12 +6,7 @@ import be.kuleuven.distributedsystems.cloud.localCompany.Seat;
 import be.kuleuven.distributedsystems.cloud.localCompany.Show;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
-import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.api.gax.core.GoogleCredentialsProvider;
-import com.google.api.gax.core.NoCredentialsProvider;
-import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.ReadChannel;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.cloud.storage.Blob;
@@ -21,7 +16,6 @@ import com.google.cloud.storage.StorageOptions;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -58,7 +52,6 @@ public class CloudFirestore {
             FirestoreOptions firestoreOptions =
                     FirestoreOptions.getDefaultInstance().toBuilder()
                             .setProjectId(projectId)
-                           // .setCredentials(GoogleCredentials.getApplicationDefault())
                             .setCredentials(credentials)
                             .build();
             Firestore db = firestoreOptions.getService();
@@ -271,8 +264,8 @@ public class CloudFirestore {
         ApiFuture<String> futureTransaction = firestore.runTransaction(transaction -> {
             Seat seat = transaction.get(docRefSeat).get().toObject(Seat.class);
             if(seat.getAvailable()){
-                transaction.set(docRefTicket, new Ticket(company, showId.toString(), seatId.toString(), ticketId.toString(), customer));
                 transaction.update(docRefSeat, "available", false);
+                transaction.set(docRefTicket, new Ticket(company, showId.toString(), seatId.toString(), ticketId.toString(), customer));
                 return "Success";
             }
             else{
@@ -317,15 +310,15 @@ public class CloudFirestore {
                 for (Object o:(ArrayList)showmap.get("seats")) {
                     UUID seat_uuid = UUID.randomUUID();
                     Map<String, Object> seatData = (Map)o;
-                    if(!timeslots.containsKey((String)seatData.get("time"))){
-                        timeslots.put((String)seatData.get("time"), new ArrayList<String>());
+                    if(!timeslots.containsKey(seatData.get("time").toString())){
+                        timeslots.put(seatData.get("time").toString(), new ArrayList<String>());
                     }
                     timeslots.get(seatData.get("time")).add(seat_uuid.toString());
-                    collectionSeats.document(seat_uuid.toString()).set(new Seat(seat_uuid.toString(), (String)seatData.get("time"),
-                            (String)seatData.get("name"), true, (String)seatData.get("type"), ((Integer)seatData.get("price")).doubleValue()));
+                    collectionSeats.document(seat_uuid.toString()).set(new Seat(seat_uuid.toString(), seatData.get("time").toString(),
+                           seatData.get("name").toString(), true, seatData.get("type").toString(), ((Integer)seatData.get("price")).doubleValue()));
                 }
                 UUID show_uuid = UUID.randomUUID();
-                Show show = new Show(show_uuid.toString(), "localCompany", (String)showmap.get("name"), (String)showmap.get("location"), (String)showmap.get("image"), timeslots);
+                Show show = new Show(show_uuid.toString(), "localCompany", showmap.get("name").toString(), showmap.get("location").toString(), showmap.get("image").toString(), timeslots);
                 collectionShows.document(show_uuid.toString()).set(show);
             }
         }

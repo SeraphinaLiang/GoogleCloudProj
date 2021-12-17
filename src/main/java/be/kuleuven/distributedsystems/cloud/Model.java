@@ -11,6 +11,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
@@ -393,6 +394,10 @@ public class Model {
     public void confirmQuotes(List<Quote> quotes, String customer) {
         // TODO: reserve all seats for the given quotes
         if (quotes.isEmpty()) return;
+        if(quotes.stream().distinct().count() != quotes.size()){
+            sendEmail(customer, false, quotes);
+            return;
+        }
         ArrayList<Ticket> tickets = new ArrayList<>();
         for (Quote quote : quotes
         ) {
@@ -411,7 +416,6 @@ public class Model {
                 String baseUrl = "https://reliabletheatrecompany.com/";
                 if (quote.getCompany().equals("unreliabletheatrecompany.com"))
                     baseUrl = "https://unreliabletheatrecompany.com/";
-                boolean succ = true;
                 var res = webClientBuilder
                         .baseUrl(baseUrl)
                         .build()
@@ -458,4 +462,5 @@ public class Model {
         }
         EmailSending.sendEmail(customer, subject, content);
     }
+
 }

@@ -4,14 +4,15 @@ import io.netty.handler.ssl.PemPrivateKey;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -25,12 +26,15 @@ public class PemUtils {
         PublicKey publicKey = null;
         try {
             KeyFactory kf = KeyFactory.getInstance(algorithm);
-            EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-            publicKey = kf.generatePublic(keySpec);
+            CertificateFactory fact = CertificateFactory.getInstance("X.509");
+            X509Certificate cer = (X509Certificate) fact.generateCertificate(new ByteArrayInputStream(keyBytes));
+            publicKey = cer.getPublicKey();
+//            EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+//            publicKey = kf.generatePublic(keySpec);
         } catch (NoSuchAlgorithmException e) {
-            System.out.println("Could not reconstruct the public key, the given algorithm could not be found.");
-        } catch (InvalidKeySpecException e) {
-            System.out.println("Could not reconstruct the public key");
+            e.printStackTrace();
+        } catch (CertificateException e){
+            e.printStackTrace();
         }
 
         return publicKey;

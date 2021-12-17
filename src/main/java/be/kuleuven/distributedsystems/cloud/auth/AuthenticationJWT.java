@@ -124,7 +124,6 @@ public class AuthenticationJWT {
 
             algorithmRS = Algorithm.RSA256((RSAPublicKey) pubRSA,null);
             JWTVerifier verifier = JWT.require(algorithmRS)
-                    .withIssuer("auth0")
                     .build();
             jwt = verifier.verify(IDtoken);
 
