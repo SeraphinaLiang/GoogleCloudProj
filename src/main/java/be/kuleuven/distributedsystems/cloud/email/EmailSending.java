@@ -15,7 +15,6 @@ public class EmailSending {
      * @param userEmail send to who
      * @param subject   the topic of email
      * @param text      the content of email
-     * API KEY : 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
      */
     public static boolean sendEmail(String userEmail, String subject, String text) {
 
@@ -25,7 +24,7 @@ public class EmailSending {
         Content content = new Content("text/plain", text);
         Mail mail = new Mail(from, subject, to, content);
 
-        SendGrid sg = new SendGrid("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");
+        SendGrid sg = new SendGrid("for security reason, I delete this");
         Request request = new Request();
         try {
             request.setMethod(Method.POST);
