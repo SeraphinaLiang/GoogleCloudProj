@@ -19,7 +19,7 @@ public class EmailSending {
     public static boolean sendEmail(String userEmail, String subject, String text) {
 
         boolean success = false;
-        Email from = new Email("mofan.deng@student.kuleuven.be");
+        Email from = new Email("---------");
         Email to = new Email(userEmail);
         Content content = new Content("text/plain", text);
         Mail mail = new Mail(from, subject, to, content);
